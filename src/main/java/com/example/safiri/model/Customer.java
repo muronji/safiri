@@ -1,9 +1,11 @@
 package com.example.safiri.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +41,9 @@ public class Customer {
         @Column(nullable = false)
         private LocalDateTime lastUpdated;
 
-        @OneToOne(fetch = FetchType.LAZY, mappedBy = "customer", cascade = CascadeType.PERSIST)
+        @OneToOne(fetch = FetchType.EAGER, mappedBy = "customer", cascade = CascadeType.ALL)
+        @JsonIgnore
+        @ToString.Exclude
         private Wallet wallet;
 
         @PrePersist
