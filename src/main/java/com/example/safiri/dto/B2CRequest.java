@@ -9,6 +9,9 @@ import lombok.*;
 @Builder
 public class B2CRequest {
 
+    @JsonProperty("OriginatorConversationID")
+    private String originatorConversationID;
+
     @JsonProperty("InitiatorName")
     private String initiatorName;
 

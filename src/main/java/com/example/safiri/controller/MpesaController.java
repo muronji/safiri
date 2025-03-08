@@ -37,9 +37,12 @@ public class MpesaController {
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
-    @PostMapping(path = "/b2c-transaction", produces = "application/json")
-    public ResponseEntity<B2CSyncResponse> performB2CTransaction(@RequestBody InternalB2CRequest internalB2CRequest) {
-        return ResponseEntity.ok(darajaApi.performB2CTransaction(internalB2CRequest));
+    @PostMapping(path = "/transfer/{customerId}", produces = "application/json")
+    public ResponseEntity<B2CSyncResponse> performB2CTransaction(
+            @PathVariable Long customerId,
+            @RequestBody InternalB2CRequest internalB2CRequest) {
+        return ResponseEntity.ok(darajaApi.performB2CTransaction(customerId, internalB2CRequest));
     }
+
 
 }

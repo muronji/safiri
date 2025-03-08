@@ -16,7 +16,10 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
+import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.BadPaddingException;
@@ -52,7 +55,6 @@ public class HelperUtility {
             Resource resource = new ClassPathResource("cert.cer");
             InputStream inputStream = resource.getInputStream();
 
-
             FileInputStream fin = new FileInputStream(resource.getFile());
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -62,7 +64,6 @@ public class HelperUtility {
 
             byte[] cipherText = cipher.doFinal(input);
 
-            // Convert the resulting encrypted byte array into a string using base64 encoding
             encryptedPassword = Base64.getEncoder().encodeToString(cipherText).trim();
             return encryptedPassword;
         } catch (NoSuchAlgorithmException | CertificateException | InvalidKeyException | NoSuchPaddingException |
@@ -73,5 +74,12 @@ public class HelperUtility {
             log.error("IO Exception occurred", e);
             throw e;
         }
+    }
+
+    public static String generateOriginatorConversationID() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String timestamp = sdf.format(new Date());
+        int randomNum = new Random().nextInt(9000) + 1000; // Random 4-digit number
+        return "TXN_" + timestamp + "_" + randomNum;
     }
 }
