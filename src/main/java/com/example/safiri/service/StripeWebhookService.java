@@ -25,10 +25,10 @@ public class StripeWebhookService {
 
     private final WalletService walletService;
     private final CustomerRepository customerRepository;
+    private final TransactionService transactionService;
 
     @Transactional
     public ResponseEntity<String> processWebhook(String payload, String sigHeader) {
-
         if (sigHeader == null || sigHeader.isEmpty()) {
             log.error("Stripe-Signature header is missing.");
             return ResponseEntity.badRequest().body("Stripe-Signature header is missing");
@@ -48,12 +48,11 @@ public class StripeWebhookService {
 
         log.info("Received webhook event: {}", event.getType());
 
-        // Handle event
+        // Handle checkout session completed event
         if ("checkout.session.completed".equals(event.getType())) {
             Optional<? extends com.stripe.model.StripeObject> stripeObjectOpt = event.getDataObjectDeserializer().getObject();
 
-            if (stripeObjectOpt.isPresent() && stripeObjectOpt.get() instanceof Session) {
-                Session session = (Session) stripeObjectOpt.get();
+            if (stripeObjectOpt.isPresent() && stripeObjectOpt.get() instanceof Session session) {
                 return handleCheckoutSession(session);
             } else {
                 log.error("Session data could not be deserialized or is of incorrect type.");
@@ -67,23 +66,33 @@ public class StripeWebhookService {
 
     private ResponseEntity<String> handleCheckoutSession(Session session) {
         String customerIdStr = session.getMetadata().get("customerId");
+        String transactionIdStr = session.getMetadata().get("transactionId");
 
-        if (customerIdStr == null) {
-            log.error("Customer ID is missing from session metadata.");
-            return ResponseEntity.badRequest().body("Customer ID is missing");
+        if (customerIdStr == null || transactionIdStr == null) {
+            log.error("Customer ID or Transaction ID is missing from session metadata.");
+            return ResponseEntity.badRequest().body("Customer ID or Transaction ID is missing");
         }
 
         Long customerId = Long.parseLong(customerIdStr);
+        long transactionId;
+        try {
+            transactionId = Long.parseLong(transactionIdStr);
+        } catch (NumberFormatException e) {
+            log.error("Invalid Transaction ID format: {}", transactionIdStr);
+            return ResponseEntity.badRequest().body("Invalid Transaction ID format");
+        }
+
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
 
         if (customerOpt.isPresent()) {
-            walletService.updateWalletBalance(customerId, session.getAmountTotal());
-            log.info("Successfully updated wallet for customer ID: {} with amount: {}", customerId, session.getAmountTotal());
+            long amount = session.getAmountTotal();
+            walletService.updateWalletBalance(customerId, amount, true);
+            transactionService.updateTransactionStatus(transactionId, "SUCCESS");
+            log.info("Successfully updated wallet for customer ID: {} with amount: {}", customerId, amount);
             return ResponseEntity.ok("Wallet updated successfully");
         } else {
             log.error("Customer with ID {} not found", customerId);
             return ResponseEntity.badRequest().body("Customer not found");
         }
     }
-
 }

@@ -1,0 +1,59 @@
+/* Global Text Styles */
+body {
+  font-family: "Arial", sans-serif;
+  color: #333; /* Default text color */
+  line-height: 1.6; /* Improve readability */
+}
+
+/* Headings */
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #004B23; /* Deep Green */
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #005A30;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #007A40;
+}
+
+/* Paragraphs */
+p {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* Links */
+a {
+  color: #008000; /* Green */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #004B23;
+}
+
+/* Button Styling */
+button {
+  background-color: #004B23;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #006D34;
+}

@@ -1,25 +1,21 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import SideBar from "./components/SideBar";
-import HomePage from './components/HomePage';
-import TransactionsPage from './components/TransactionsPage';
-import ProfilePage from './components/ProfilePage';
-import './App.css';
-
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import DefaultLayout from "./components/DefaultLayout";
+import routes from "./components/route";
+import 'remixicon/fonts/remixicon.css';
 
 const App = () => {
     return (
         <Router>
-            <div className="app">
-                <SideBar />
-                <div className="content">
-                    <Routes>
-                        <Route path="/home" element={<HomePage />} />
-                        <Route path="/transactions" element={<TransactionsPage />} />
-                        <Route path="/profile" element={<ProfilePage />} />
-                    </Routes>
-                </div>
-            </div>
+            <DefaultLayout>
+                <Routes>
+                    <Route path="/" element={<Navigate replace to="/home" />} />
+                    {routes.map((route, index) => (
+                        <Route key={index} path={route.path} element={route.element} />
+                    ))}
+                </Routes>
+
+            </DefaultLayout>
         </Router>
     );
 };

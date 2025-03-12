@@ -1,8 +1,11 @@
 package com.example.safiri.service;
 
-
 import com.example.safiri.dto.PaymentRequest;
 import com.example.safiri.dto.StripeResponse;
+import com.example.safiri.model.Customer;
+import com.example.safiri.model.Transaction;
+import com.example.safiri.repository.CustomerRepository;
+import com.example.safiri.repository.TransactionRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -10,16 +13,26 @@ import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Service
 public class StripeService {
 
     @Value("${secret-key}")
     private String secretKey;
 
+    private final CustomerRepository customerRepository;
+    private final TransactionRepository transactionRepository;
+
+    public StripeService(CustomerRepository customerRepository, TransactionRepository transactionRepository) {
+        this.customerRepository = customerRepository;
+        this.transactionRepository = transactionRepository;
+    }
+
     public StripeResponse createWalletFundingSession(PaymentRequest paymentRequest) {
         Stripe.apiKey = secretKey;
 
-        // Ensure valid input
         if (paymentRequest.getAmount() == null || paymentRequest.getAmount() <= 0) {
             return StripeResponse.builder()
                     .status("FAILED")
@@ -28,6 +41,22 @@ public class StripeService {
                     .sessionUrl(null)
                     .build();
         }
+
+        long customerId;
+        try {
+            customerId = Long.parseLong(paymentRequest.getCustomerId());
+        } catch (NumberFormatException e) {
+            return StripeResponse.builder()
+                    .status("FAILED")
+                    .message("Invalid customer ID format")
+                    .sessionId(null)
+                    .sessionUrl(null)
+                    .build();
+        }
+
+        // Fetch the customer
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
 
         // Create product data (Wallet Funding)
         SessionCreateParams.LineItem.PriceData.ProductData productData =
@@ -56,12 +85,21 @@ public class StripeService {
                 .setSuccessUrl("http://localhost:8080/wallet/success?customerId=" + paymentRequest.getCustomerId())
                 .setCancelUrl("http://localhost:8080/wallet/cancel?customerId=" + paymentRequest.getCustomerId())
                 .addLineItem(lineItem)
-                .putMetadata("customerId", paymentRequest.getCustomerId()) // Attach customerId
+                .putMetadata("customerId", String.valueOf(paymentRequest.getCustomerId())) // Attach customerId
                 .build();
-
 
         try {
             Session session = Session.create(params);
+
+            // Log pending transaction (before Stripe confirmation)
+            Transaction transaction = new Transaction();
+            transaction.setCustomer(customer);
+            transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
+            transaction.setAmount(BigDecimal.valueOf(paymentRequest.getAmount() / 100.0)); // Convert cents to dollars
+            transaction.setTransactionStatus(Transaction.TransactionStatus.PENDING);
+            transaction.setTxRef(session.getId());
+            transaction.setTransactionDate(LocalDateTime.now());
+            transactionRepository.save(transaction);
 
             return StripeResponse.builder()
                     .status("SUCCESS")
@@ -80,5 +118,42 @@ public class StripeService {
         }
     }
 
+    public void handlePaymentSuccess(String sessionId, Long customerId) {
+        Stripe.apiKey = secretKey;
+
+        try {
+            // Fetch the Stripe session to confirm the payment
+            Session session = Session.retrieve(sessionId);
+
+            if (!"complete".equals(session.getStatus())) {
+                throw new RuntimeException("Payment not completed");
+            }
+
+            // Fetch the customer from the database
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+            // Fetch the transaction using sessionId
+            Transaction transaction = transactionRepository.findByTxRef(sessionId)
+                    .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+            // Ensure transaction is still pending
+            if (!"PENDING".equals(transaction.getTransactionStatus().name())) {
+                throw new RuntimeException("Transaction already processed");
+            }
+
+            // Update wallet balance
+            BigDecimal newBalance = customer.getWalletBalance().add(transaction.getAmount());
+            customer.setWalletBalance(newBalance);
+            customerRepository.save(customer);
+
+            // Update transaction status
+            transaction.setTransactionStatus(Transaction.TransactionStatus.SUCCESS);
+            transactionRepository.save(transaction);
+
+        } catch (StripeException e) {
+            throw new RuntimeException("Error verifying payment: " + e.getMessage());
+        }
+    }
 
 }
