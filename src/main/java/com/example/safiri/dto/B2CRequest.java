@@ -3,16 +3,11 @@ package com.example.safiri.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class B2CRequest {
-
-    @JsonProperty("OriginatorConversationID")
-    private String originatorConversationID;
 
     @JsonProperty("InitiatorName")
     private String initiatorName;
@@ -24,7 +19,7 @@ public class B2CRequest {
     private String commandID;
 
     @JsonProperty("Amount")
-    private BigDecimal amount;
+    private String amount;
 
     @JsonProperty("PartyA")
     private String partyA;
@@ -44,7 +39,6 @@ public class B2CRequest {
     @JsonProperty("Occassion")
     private String occassion;
 
-
-
-
+    @JsonProperty("OriginatorConversationID")
+    private String originatorConversationID;
 }

@@ -26,7 +26,7 @@ public class MpesaController {
 
     @PostMapping(path = "/b2c-transaction-result", produces = "application/json")
     public ResponseEntity<AcknowledgeResponse> b2cTransactionAsyncResults(@RequestBody B2CAsyncResponse b2CAsyncResponse)
-    throws JsonProcessingException {
+            throws JsonProcessingException {
         log.info("============B2C Transaction Response============");
         log.info(objectMapper.writeValueAsString(b2CAsyncResponse));
         return ResponseEntity.ok(acknowledgeResponse);
@@ -37,12 +37,18 @@ public class MpesaController {
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
-    @PostMapping(path = "/transfer/{customerId}", produces = "application/json")
-    public ResponseEntity<B2CSyncResponse> performB2CTransaction(
-            @PathVariable Long customerId,
-            @RequestBody InternalB2CRequest internalB2CRequest) {
-        return ResponseEntity.ok(darajaApi.performB2CTransaction(customerId, internalB2CRequest));
+    @PostMapping(path = "/b2c-transaction/{customerId}", produces = "application/json")
+    public ResponseEntity<B2CSyncResponse> performB2C(@PathVariable Long customerId, @RequestBody String rawRequest) {
+        log.info("Raw JSON Request: {}", rawRequest);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            InternalB2CRequest request = objectMapper.readValue(rawRequest, InternalB2CRequest.class);
+            log.info("Parsed InternalB2CRequest: {}", request);
+            return ResponseEntity.ok(darajaApi.performB2CTransaction(customerId, request));
+        } catch (Exception e) {
+            log.error("Failed to parse JSON: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
-
-
 }

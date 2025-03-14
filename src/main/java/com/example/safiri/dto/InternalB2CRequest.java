@@ -2,8 +2,8 @@ package com.example.safiri.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public class InternalB2CRequest {
@@ -11,7 +11,7 @@ public class InternalB2CRequest {
     private String remarks;
 
     @JsonProperty("Amount")
-    private BigDecimal amount;
+    private String amount;
 
     @JsonProperty("Occassion")
     private String occassion;
@@ -22,4 +22,3 @@ public class InternalB2CRequest {
     @JsonProperty("PartyB")
     private String partyB;
 }
-

@@ -73,7 +73,11 @@ public class DarajaApiImplementation implements DarajaApi {
         Wallet wallet = walletRepository.findByCustomer_CustomerId(customerId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found for Customer ID: " + customerId));
 
-        BigDecimal withdrawalAmount = internalB2CRequest.getAmount(); // Using BigDecimal directly
+        BigDecimal withdrawalAmount = new BigDecimal(internalB2CRequest.getAmount());
+        if (withdrawalAmount == null) {
+            log.error("Withdrawal amount is missing in the request for Customer ID: {}", customerId);
+            throw new MpesaTransactionException("Withdrawal amount cannot be null");
+        }
 
         if (wallet.getWalletBalance().compareTo(withdrawalAmount) < 0) {
             log.error("Insufficient balance for Customer ID {}: Available {}, Required {}",
@@ -92,7 +96,7 @@ public class DarajaApiImplementation implements DarajaApi {
         B2CRequest b2CTransactionRequest = new B2CRequest();
         b2CTransactionRequest.setOriginatorConversationID(HelperUtility.generateOriginatorConversationID());
         b2CTransactionRequest.setCommandID(internalB2CRequest.getCommandID());
-        b2CTransactionRequest.setAmount(withdrawalAmount);
+        b2CTransactionRequest.setAmount(withdrawalAmount.toString());
         b2CTransactionRequest.setPartyB(internalB2CRequest.getPartyB());
         b2CTransactionRequest.setRemarks(internalB2CRequest.getRemarks());
         b2CTransactionRequest.setOccassion(internalB2CRequest.getOccassion());
