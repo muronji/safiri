@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/customers")
+@RequestMapping("api/v1/users")
 public class CustomerController {
     private final CustomerService customerService;
     private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
@@ -74,6 +74,7 @@ public class CustomerController {
             return new ResponseEntity<>("Failed to delete customer: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
 //    @GetMapping("/profile")
 //    public ResponseEntity<?> getCustomerProfile() {

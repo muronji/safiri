@@ -2,9 +2,9 @@ package com.example.safiri.service;
 
 import com.example.safiri.dto.PaymentRequest;
 import com.example.safiri.dto.StripeResponse;
-import com.example.safiri.model.Customer;
+import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
-import com.example.safiri.repository.CustomerRepository;
+import com.example.safiri.repository.UserRepository;
 import com.example.safiri.repository.TransactionRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -21,11 +21,11 @@ public class StripeService {
     @Value("${secret-key}")
     private String secretKey;
 
-    private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
 
-    public StripeService(CustomerRepository customerRepository, TransactionRepository transactionRepository) {
-        this.customerRepository = customerRepository;
+    public StripeService(UserRepository userRepository, TransactionRepository transactionRepository) {
+        this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
     }
 
@@ -43,11 +43,11 @@ public class StripeService {
             return new StripeResponse("FAILED", "Invalid customer ID format", null, null);
         }
 
-        Customer customer = customerRepository.findById(customerId)
+        User user = userRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
         Transaction transaction = new Transaction();
-        transaction.setCustomer(customer);
+        transaction.setUser(user);
         transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
         transaction.setAmount(BigDecimal.valueOf(paymentRequest.getAmount() / 100.0));
         transaction.setTransactionStatus(Transaction.TransactionStatus.PENDING);

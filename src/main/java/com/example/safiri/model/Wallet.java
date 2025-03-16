@@ -17,8 +17,8 @@ public class Wallet {
     private Long walletId;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    @JoinColumn(name = "Id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private BigDecimal walletBalance = BigDecimal.ZERO;

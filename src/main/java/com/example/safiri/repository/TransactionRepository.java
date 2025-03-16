@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByCustomer_CustomerId(Long customerId);
+    List<Transaction> findByUser_Id(Long customerId);
     boolean existsByTransactionId(Long TransactionId);
     Transaction findByTransactionId(Long transactionId);
 

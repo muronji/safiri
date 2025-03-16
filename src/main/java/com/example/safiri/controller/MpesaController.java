@@ -37,15 +37,15 @@ public class MpesaController {
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
-    @PostMapping(path = "/b2c-transaction/{customerId}", produces = "application/json")
-    public ResponseEntity<B2CSyncResponse> performB2C(@PathVariable Long customerId, @RequestBody String rawRequest) {
+    @PostMapping(path = "/b2c-transaction/{Id}", produces = "application/json")
+    public ResponseEntity<B2CSyncResponse> performB2C(@PathVariable Long Id, @RequestBody String rawRequest) {
         log.info("Raw JSON Request: {}", rawRequest);
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             InternalB2CRequest request = objectMapper.readValue(rawRequest, InternalB2CRequest.class);
             log.info("Parsed InternalB2CRequest: {}", request);
-            return ResponseEntity.ok(darajaApi.performB2CTransaction(customerId, request));
+            return ResponseEntity.ok(darajaApi.performB2CTransaction(Id, request));
         } catch (Exception e) {
             log.error("Failed to parse JSON: {}", e.getMessage());
             return ResponseEntity.badRequest().build();

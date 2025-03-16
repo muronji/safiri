@@ -7,7 +7,7 @@ import com.example.safiri.dto.B2CSyncResponse;
 import com.example.safiri.dto.InternalB2CRequest;
 import com.example.safiri.exceptions.MpesaTransactionException;
 import com.example.safiri.exceptions.WalletNotFoundException;
-import com.example.safiri.model.Customer;
+import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
 import com.example.safiri.model.Wallet;
 import com.example.safiri.repository.TransactionRepository;
@@ -67,25 +67,37 @@ public class DarajaApiImplementation implements DarajaApi {
 
     @Transactional
     @Override
-    public B2CSyncResponse performB2CTransaction(Long customerId, InternalB2CRequest internalB2CRequest) {
-        log.info("Incoming InternalB2CRequest from Customer ID {}: {}", customerId, HelperUtility.toJson(internalB2CRequest));
+    public B2CSyncResponse performB2CTransaction(Long Id, InternalB2CRequest internalB2CRequest) {
+        log.info("Incoming InternalB2CRequest from Customer ID {}: {}", Id, HelperUtility.toJson(internalB2CRequest));
 
-        Wallet wallet = walletRepository.findByCustomer_CustomerId(customerId)
-                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for Customer ID: " + customerId));
+        Wallet wallet = walletRepository.findByUser_Id(Id)
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for Customer ID: " + Id));
 
-        BigDecimal withdrawalAmount = new BigDecimal(internalB2CRequest.getAmount());
-        if (withdrawalAmount == null) {
-            log.error("Withdrawal amount is missing in the request for Customer ID: {}", customerId);
-            throw new MpesaTransactionException("Withdrawal amount cannot be null");
+        BigDecimal withdrawalAmount;
+        try {
+            withdrawalAmount = new BigDecimal(internalB2CRequest.getAmount());
+        } catch (NumberFormatException e) {
+            log.error("Invalid withdrawal amount for Customer ID {}: {}", Id, internalB2CRequest.getAmount());
+            throw new MpesaTransactionException("Invalid withdrawal amount format");
         }
 
         if (wallet.getWalletBalance().compareTo(withdrawalAmount) < 0) {
             log.error("Insufficient balance for Customer ID {}: Available {}, Required {}",
-                    customerId, wallet.getWalletBalance(), withdrawalAmount);
+                    Id, wallet.getWalletBalance(), withdrawalAmount);
             throw new MpesaTransactionException("Insufficient balance for withdrawal");
         }
 
         log.info("Sufficient balance, proceeding with B2C transaction...");
+
+        User user = wallet.getUser();
+        Transaction transaction = new Transaction();
+        transaction.setUser(user);
+        transaction.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
+        transaction.setAmount(withdrawalAmount);
+        transaction.setTransactionStatus(Transaction.TransactionStatus.PENDING);
+        transaction.setTransactionDate(LocalDateTime.now());
+
+        transactionRepository.save(transaction); // Save pending transaction
 
         AccessTokenResponse accessTokenResponse = getAccessToken();
         if (accessTokenResponse == null || accessTokenResponse.getAccessToken() == null) {
@@ -134,26 +146,37 @@ public class DarajaApiImplementation implements DarajaApi {
             if ("0".equals(b2CResponse.getResponseCode())) {
                 wallet.setWalletBalance(wallet.getWalletBalance().subtract(withdrawalAmount));
                 walletRepository.save(wallet);
-                log.info("Wallet balance updated successfully for Customer ID: {}", customerId);
-                logTransaction(customerId, withdrawalAmount, b2CResponse.getOriginatorConversationID());
+                log.info("Wallet balance updated successfully for Customer ID: {}", Id);
+
+                transaction.setTransactionStatus(Transaction.TransactionStatus.SUCCESS);
+                transaction.setTxRef(b2CResponse.getOriginatorConversationID());
+                transaction.setLastUpdated(LocalDateTime.now());
+                transactionRepository.save(transaction);
+                log.info("Transaction updated to SUCCESS for Customer ID: {}", Id);
             } else {
                 log.error("B2C Transaction failed. No deduction from wallet.");
+                transaction.setTransactionStatus(Transaction.TransactionStatus.FAILED);
+                transaction.setLastUpdated(LocalDateTime.now());
+                transactionRepository.save(transaction);
                 throw new MpesaTransactionException("M-Pesa B2C transaction failed: " + b2CResponse.getResponseDescription());
             }
             return b2CResponse;
         } catch (IOException e) {
             log.error("Could not perform B2C transaction -> {}", e.getLocalizedMessage());
+            transaction.setTransactionStatus(Transaction.TransactionStatus.FAILED);
+            transaction.setLastUpdated(LocalDateTime.now());
+            transactionRepository.save(transaction);
             throw new MpesaTransactionException("B2C transaction failed due to network error");
         }
     }
 
-    private void logTransaction(Long customerId, BigDecimal amount, String originatorConversationID) {
-        Wallet wallet = walletRepository.findByCustomer_CustomerId(customerId)
+    private void logTransaction(Long Id, BigDecimal amount, String originatorConversationID) {
+        Wallet wallet = walletRepository.findByUser_Id(Id)
                 .orElseThrow(() -> new WalletNotFoundException("Customer not found"));
-        Customer customer = wallet.getCustomer();
+        User user = wallet.getUser();
 
         Transaction transaction = new Transaction();
-        transaction.setCustomer(customer);
+        transaction.setUser(user);
         transaction.setTxRef(originatorConversationID);
         transaction.setAmount(amount);
         transaction.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
@@ -162,6 +185,6 @@ public class DarajaApiImplementation implements DarajaApi {
         transaction.setLastUpdated(LocalDateTime.now());
 
         transactionRepository.save(transaction);
-        log.info("Transaction logged successfully for Customer ID: {}", customerId);
+        log.info("Transaction logged successfully for Customer ID: {}", Id);
     }
 }

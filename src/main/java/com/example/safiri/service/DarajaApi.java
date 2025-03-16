@@ -8,6 +8,6 @@ public interface DarajaApi {
 
     AccessTokenResponse getAccessToken();
 
-    B2CSyncResponse performB2CTransaction(Long customerId,InternalB2CRequest internalB2CRequest);
+    B2CSyncResponse performB2CTransaction(Long Id, InternalB2CRequest internalB2CRequest);
 
 }

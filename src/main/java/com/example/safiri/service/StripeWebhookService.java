@@ -1,7 +1,7 @@
 package com.example.safiri.service;
 
-import com.example.safiri.model.Customer;
-import com.example.safiri.repository.CustomerRepository;
+import com.example.safiri.model.User;
+import com.example.safiri.repository.UserRepository;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
@@ -24,7 +24,7 @@ public class StripeWebhookService {
     private String webhookSecret;
 
     private final WalletService walletService;
-    private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final TransactionService transactionService;
 
     @Transactional
@@ -82,7 +82,7 @@ public class StripeWebhookService {
             return ResponseEntity.badRequest().body("Invalid Transaction ID format");
         }
 
-        Optional<Customer> customerOpt = customerRepository.findById(customerId);
+        Optional<User> customerOpt = userRepository.findById(customerId);
 
         if (customerOpt.isPresent()) {
             long amount = session.getAmountTotal();

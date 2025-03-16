@@ -3,12 +3,17 @@ package com.example.safiri.service;
 import com.example.safiri.CustomerMapper;
 import com.example.safiri.dto.CustomerRequest;
 import com.example.safiri.dto.CustomerResponse;
-import com.example.safiri.model.Customer;
+import com.example.safiri.model.Role;
+import com.example.safiri.model.User;
 import com.example.safiri.model.Wallet;
-import com.example.safiri.repository.CustomerRepository;
+import com.example.safiri.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,98 +24,91 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class CustomerService {
-    private final CustomerRepository customerRepository;
+public class CustomerService implements UserDetailsService {
+    private final static String USER_NOT_FOUND_MSG = "User with email %s not found";
+
+    private final UserRepository userRepository;
     private final CustomerMapper customerMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
+    }
+
+    public boolean userExistsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 
     public CustomerResponse createCustomer(CustomerRequest customerRequest) {
         log.info("Received CustomerRequest: {}", customerRequest);
-        Customer customer = customerMapper.toCustomer(customerRequest);
 
-        log.info("Mapped Customer entity: {}", customer);
-
-        if (customer.getEmail() == null || customer.getEmail().isEmpty()) {
-            log.error("Email is missing in the customer entity");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        if (userRepository.findByEmail(customerRequest.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already registered");
         }
 
+        User user = customerMapper.toUser(customerRequest);
+        log.info("Mapped user entity before saving: {}", user);
+        user.setPassword(passwordEncoder.encode(customerRequest.getPassword())); // Encrypt password
+        user.setWalletBalance(BigDecimal.ZERO);
+        user.setRole(Role.CUSTOMER);
+
         Wallet wallet = new Wallet();
-        wallet.setCustomer(customer);
+        wallet.setUser(user);
         wallet.setWalletBalance(BigDecimal.ZERO);
+        user.setWallet(wallet);
 
-        customer.setWalletBalance(BigDecimal.ZERO);
-        customer.setWallet(wallet);
-
-        log.info("Saving Customer entity: {}", customer);
-        Customer savedCustomer = customerRepository.save(customer);
-
-        log.info("Customer saved with ID: {}", savedCustomer.getCustomerId());
-        return customerMapper.toCustomerResponse(savedCustomer);
+        log.info("Saving new customer: {}", user);
+        User savedUser = userRepository.save(user); // Persist customer to the DB
+        return customerMapper.toCustomerResponse(savedUser);
     }
 
     public CustomerResponse getCustomerById(Long customerId) {
-        log.info("Fetching customer with ID: {}", customerId);
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> {
-                    log.error("Customer not found with ID: {}", customerId);
-                    return new RuntimeException("Customer not found");
-                });
+        User user = userRepository.findById(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
 
-        log.info("Found customer: {}", customer);
-        return customerMapper.toCustomerResponse(customer);
+        return customerMapper.toCustomerResponse(user);
     }
 
     public List<CustomerResponse> getAllCustomers() {
-        return customerRepository.findAll()
+        return userRepository.findAll()
                 .stream()
                 .map(customerMapper::toCustomerResponse)
                 .collect(Collectors.toList());
     }
 
     public void deleteCustomer(Long customerId) {
-        if (customerRepository.existsById(customerId)) {
-            customerRepository.deleteById(customerId);
+        if (userRepository.existsById(customerId)) {
+            userRepository.deleteById(customerId);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId);
         }
     }
 
     public CustomerResponse updateCustomer(Long customerId, CustomerRequest customerRequest) {
-        Customer customer = customerRepository.findById(customerId)
+        User user = userRepository.findById(customerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
-        customerMapper.updateCustomerFromDTO(customerRequest, customer);
 
-        Customer updatedCustomer = customerRepository.save(customer);
-        return customerMapper.toCustomerResponse(updatedCustomer);
+        customerMapper.updateCustomerFromDTO(customerRequest, user);
+        User updatedUser = userRepository.save(user);
+
+        return customerMapper.toCustomerResponse(updatedUser);
     }
 
     public boolean customerExists(Long customerId) {
-        return customerRepository.existsById(customerId);
+        return userRepository.existsById(customerId);
     }
 
-    public Customer getCustomerEntityById(Long customerId) {
-        return customerRepository.findById(customerId)
+    public User getCustomerEntityById(Long customerId) {
+        return userRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Customer does not exist"));
     }
 
     public String getCustomerEmail(Long customerId) {
-        Customer customer = customerRepository.findById(customerId)
+        User user = userRepository.findById(customerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
-        return customer.getEmail();
+        return user.getEmail();
     }
 
-//    public CustomerResponse getHardcodedCustomer() {
-//        Long customerId = 1L; // Hardcoded customer ID
-//        Customer customer = customerRepository.findCustomerWithWallet(customerId)
-//                .orElseThrow(() -> new RuntimeException("Customer not found"));
-//
-//        return new CustomerResponse(
-//                customer.getCustomerId(),
-//                customer.getName(),
-//                customer.getEmail(),
-//                customer.getIdentifierType(),
-//                customer.getIdentifier(),
-//                customer.getWallet() != null ? customer.getWallet().getWalletBalance() : BigDecimal.ZERO
-//        );
-//    }
 }

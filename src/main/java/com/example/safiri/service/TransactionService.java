@@ -1,8 +1,7 @@
 package com.example.safiri.service;
 
 import com.example.safiri.dto.CustomerResponse;
-import com.example.safiri.dto.TransactionDTO;
-import com.example.safiri.model.Customer;
+import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
 import com.example.safiri.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
@@ -28,18 +27,18 @@ public class TransactionService {
         CustomerResponse customerResponse = customerService.getCustomerById(customerId); // Ensure customer exists
 
         // Convert CustomerResponse to Customer
-        Customer customer = new Customer();
-        customer.setCustomerId(customerResponse.getCustomerId());
-        customer.setName(customerResponse.getName());
-        customer.setEmail(customerResponse.getEmail());
-        customer.setIdentifier(customerResponse.getIdentifier());
-        customer.setIdentifierType(customerResponse.getIdentifierType());
-        customer.setWalletBalance(customerResponse.getWalletBalance());
-        customer.setCreationDate(LocalDateTime.now());
-        customer.setLastUpdated(LocalDateTime.now());
+        User user = new User();
+        user.setId(customerResponse.getCustomerId());
+        user.setName(customerResponse.getName());
+        user.setEmail(customerResponse.getEmail());
+        user.setIdentifier(customerResponse.getIdentifier());
+        user.setIdentifierType(customerResponse.getIdentifierType());
+        user.setWalletBalance(customerResponse.getWalletBalance());
+        user.setCreationDate(LocalDateTime.now());
+        user.setLastUpdated(LocalDateTime.now());
 
         Transaction transaction = new Transaction();
-        transaction.setCustomer(customer);
+        transaction.setUser(user);
         transaction.setAmount(amount);
         transaction.setTxRef(txRef);
         transaction.setTransactionType(type);
@@ -67,6 +66,6 @@ public class TransactionService {
         }
     }
     public List<Transaction> getTransactionsByCustomerId(Long customerId) {
-        return transactionRepository.findByCustomer_CustomerId(customerId);
+        return transactionRepository.findByUser_Id(customerId);
     }
 }
