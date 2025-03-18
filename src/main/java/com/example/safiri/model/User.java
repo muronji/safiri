@@ -24,10 +24,16 @@ public class User implements UserDetails {
         private Long Id;
 
         @Column(nullable = false)
-        private String name;
+        private String firstName;
+
+        @Column(nullable = false)
+        private String lastName;
 
         @Column(nullable = false, unique = true)
         private String email;
+
+        @Column(nullable = false)
+        private String phoneNumber;
 
         @Column(nullable = false)
         @JsonIgnore

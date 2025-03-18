@@ -29,8 +29,10 @@ public class TransactionService {
         // Convert CustomerResponse to Customer
         User user = new User();
         user.setId(customerResponse.getCustomerId());
-        user.setName(customerResponse.getName());
+        user.setFirstName(customerResponse.getFirstName());
+        user.setLastName(customerResponse.getLastName());
         user.setEmail(customerResponse.getEmail());
+        user.setPhoneNumber(customerResponse.getPhoneNumber());
         user.setIdentifier(customerResponse.getIdentifier());
         user.setIdentifierType(customerResponse.getIdentifierType());
         user.setWalletBalance(customerResponse.getWalletBalance());

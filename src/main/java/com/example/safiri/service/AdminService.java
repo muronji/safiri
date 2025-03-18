@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.example.safiri.model.Role.ADMIN;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +26,8 @@ public class AdminService {
         }
 
         User admin = new User();
-        admin.setName(adminRequest.getName());
+        admin.setFirstName(adminRequest.getFirstName());
+        admin.setLastName(adminRequest.getLastName());
         admin.setEmail(adminRequest.getEmail());
         admin.setPassword(passwordEncoder.encode(adminRequest.getPassword()));
         admin.setRole(Role.ADMIN);  // Ensure Role.ADMIN is correctly defined in your enum

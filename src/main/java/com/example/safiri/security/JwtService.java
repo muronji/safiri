@@ -1,5 +1,6 @@
 package com.example.safiri.security;
 
+import com.example.safiri.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -37,12 +38,13 @@ public class JwtService {
         return signingKey;
     }
 
-    public String generateToken(UserDetails userDetails) {
-        System.out.println("🔹 Generating JWT Token for: " + userDetails.getUsername());
+    public String generateToken(User user) {
+        System.out.println("🔹 Generating JWT Token for: " + user.getUsername());
         System.out.println("🔹 Using Secret Key for Signing: " + signingKey);
         System.out.println("🔹 Base64 Encoded Secret Key: " + secretKey); // Print the raw secret
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .subject(user.getEmail())
+                .claim("role", user.getRole())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
                 .signWith(getSigningKey(), Jwts.SIG.HS256)

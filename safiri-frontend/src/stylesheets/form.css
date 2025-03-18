@@ -1,0 +1,69 @@
+.form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #ffffff; /* White form background */
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+    background-color: var(--primary-color, #004B23); /* Green header */
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    margin: -25px -25px 20px -25px;
+}
+
+.form-header h1 {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.form-form {
+    padding: 20px;
+}
+
+.form-divider {
+    margin-bottom: 20px;
+    border: 1px solid var(--primary-color, #004B23);
+}
+
+.form-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form-button {
+    background-color: var(--primary-color, #004B23) !important;
+    border-color: var(--primary-color, #004B23) !important;
+    color: white !important;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.form-button:hover {
+    background-color: darkgreen !important;
+    border-color: darkgreen !important;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.form-footer a {
+    color: var(--primary-color, #004B23);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+    color: var(--secondary-color, #C9A227);
+}

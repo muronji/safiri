@@ -13,12 +13,12 @@ import java.math.BigDecimal;
 public class CustomerResponse {
     @JsonProperty("id")
     private Long CustomerId;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String phoneNumber;
     private BigDecimal walletBalance;
     private String identifier;
     private String identifierType;
 
-    public CustomerResponse(Long customerId, String name, String email, String identifierType, String identifier, Number number) {
-    }
 }
