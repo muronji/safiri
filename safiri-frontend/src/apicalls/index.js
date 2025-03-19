@@ -24,7 +24,6 @@ export const loginUser = async (credentials) => {
     }
 };
 
-
 export const registerUser = async (formData) => {
     try {
         const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
@@ -66,9 +65,10 @@ export const fetchUserTransactions = async (userId, token) => {
         }));
     } catch (error) {
         console.error("Error fetching transactions:", error);
-        throw new Error("Failed to load transactions.");
+        return []; // ✅ Return empty array to prevent UI crash
     }
 };
+
 
 export const fetchWalletBalance = async (userId) => {
     try {
@@ -123,3 +123,38 @@ export const performB2CTransaction = async (id, data) => {
         throw error;
     }
 };
+
+/**
+ * Perform wallet top-up via API
+ * @param {string} userId - User's ID
+ * @param {number} amount - Amount to top-up
+ * @returns {Promise<Object>} - API response
+ */
+export const performWalletTopUp = async (userId, amount) => {
+    try {
+        const token = localStorage.getItem("token"); // Get JWT token
+        if (!token) {
+            throw new Error("Unauthorized: No token found.");
+        }
+
+        const response = await fetch(`${API_BASE_URL}/payment/fund-wallet`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // ✅ Attach token
+            },
+            body: JSON.stringify({ userId, amount }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Wallet top-up failed.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error funding wallet:", error);
+        throw error;
+    }
+};
+
+

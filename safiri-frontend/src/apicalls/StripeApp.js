@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import {performWalletTopUp} from "./index";
 
 const WalletFunding = () => {
     const [amount, setAmount] = useState("");
@@ -12,20 +13,14 @@ const WalletFunding = () => {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:8080/api/payment/fund-wallet", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ amount }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to create checkout session.");
+            const user = JSON.parse(localStorage.getItem("user")); // Get user from storage
+            if (!user) {
+                setError("User not found. Please log in.");
+                return;
             }
+            const response = await performWalletTopUp(user.id, amount);
 
-            const session = await response.json();
-            window.location.href = session.sessionUrl; // Redirect to Stripe checkout
+            window.location.href = response.sessionUrl; // Redirect to Stripe checkout
         } catch (err) {
             setError(err.message || "An error occurred. Please try again.");
         } finally {

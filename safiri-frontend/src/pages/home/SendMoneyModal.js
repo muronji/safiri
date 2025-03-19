@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import { Form, Modal, Input, Button, message } from "antd";
 import {performB2CTransaction} from "../../apicalls";
 
-
 function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }) {  // Default to empty object
 
     const [form] = Form.useForm();
