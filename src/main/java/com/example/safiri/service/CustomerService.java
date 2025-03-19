@@ -64,12 +64,18 @@ public class CustomerService implements UserDetailsService {
         return customerMapper.toCustomerResponse(savedUser);
     }
 
-    public CustomerResponse getCustomerById(Long customerId) {
-        User user = userRepository.findById(customerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+    public CustomerResponse getCustomerById(Long Id) {
+        User user = userRepository.findById(Id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
 
-        return customerMapper.toCustomerResponse(user);
+        log.info("Retrieved User from DB: {}", user);
+
+        CustomerResponse response = customerMapper.mapToResponse(user);
+        log.info("Mapped CustomerResponse: {}", response);
+
+        return response;
     }
+
 
     public List<CustomerResponse> getAllCustomers() {
         return userRepository.findAll()
@@ -78,17 +84,17 @@ public class CustomerService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteCustomer(Long customerId) {
-        if (userRepository.existsById(customerId)) {
-            userRepository.deleteById(customerId);
+    public void deleteCustomer(Long Id) {
+        if (userRepository.existsById(Id)) {
+            userRepository.deleteById(Id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id);
         }
     }
 
-    public CustomerResponse updateCustomer(Long customerId, CustomerRequest customerRequest) {
-        User user = userRepository.findById(customerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+    public CustomerResponse updateCustomer(Long Id, CustomerRequest customerRequest) {
+        User user = userRepository.findById(Id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
 
         customerMapper.updateCustomerFromDTO(customerRequest, user);
         User updatedUser = userRepository.save(user);
@@ -96,18 +102,18 @@ public class CustomerService implements UserDetailsService {
         return customerMapper.toCustomerResponse(updatedUser);
     }
 
-    public boolean customerExists(Long customerId) {
-        return userRepository.existsById(customerId);
+    public boolean customerExists(Long Id) {
+        return userRepository.existsById(Id);
     }
 
-    public User getCustomerEntityById(Long customerId) {
-        return userRepository.findById(customerId)
+    public User getCustomerEntityById(Long Id) {
+        return userRepository.findById(Id)
                 .orElseThrow(() -> new IllegalArgumentException("Customer does not exist"));
     }
 
-    public String getCustomerEmail(Long customerId) {
-        User user = userRepository.findById(customerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+    public String getCustomerEmail(Long Id) {
+        User user = userRepository.findById(Id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
         return user.getEmail();
     }
 

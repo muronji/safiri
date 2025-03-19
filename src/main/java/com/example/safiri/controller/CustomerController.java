@@ -45,17 +45,17 @@ public class CustomerController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCustomerById(@PathVariable("id") Long customerId) {
+    @GetMapping("profile/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable("id") Long Id) {
         try {
-            CustomerResponse customer = customerService.getCustomerById(customerId);
+            CustomerResponse customer = customerService.getCustomerById(Id);
             return new ResponseEntity<>(customer, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Customer not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable("id") Long customerId, @RequestBody CustomerRequest customerRequest) {
         try {
             CustomerResponse updatedCustomer = customerService.updateCustomer(customerId, customerRequest);

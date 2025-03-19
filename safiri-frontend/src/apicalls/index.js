@@ -1,5 +1,4 @@
 import axios from "axios";
-import {message} from "antd";
 
 // src/services/authService.js
 const API_BASE_URL = "http://localhost:8080/api";
@@ -15,8 +14,8 @@ export const loginUser = async (credentials) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Login failed!");
 
-        // ✅ Save token correctly
         localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.user.id);
 
         return data;
     } catch (error) {
@@ -130,7 +129,7 @@ export const performB2CTransaction = async (id, data) => {
  * @param {number} amount - Amount to top-up
  * @returns {Promise<Object>} - API response
  */
-export const performWalletTopUp = async (userId, amount) => {
+export const fundWallet = async (userId, amount) => {
     try {
         const token = localStorage.getItem("token"); // Get JWT token
         if (!token) {
@@ -156,5 +155,65 @@ export const performWalletTopUp = async (userId, amount) => {
         throw error;
     }
 };
+
+export const getCustomerProfile = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId"); // ✅ Get stored userId
+
+    if (!token || !userId) {
+        throw new Error("Unauthorized: No token or userId provided.");
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/v1/users/profile/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error response:", errorData);
+            throw new Error(`Failed to fetch profile: ${errorData.message || "Unknown error"}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+    }
+};
+
+
+
+
+
+export const updateCustomerProfile = async (formData) => {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.error("No JWT token found in localStorage!");
+            throw new Error("Unauthorized: No token provided.");
+        }
+
+        const response = await fetch(`${API_BASE_URL}/v1/users/`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`, // Attach token
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) throw new Error("Failed to update profile.");
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        throw error;
+    }
+};
+
 
 

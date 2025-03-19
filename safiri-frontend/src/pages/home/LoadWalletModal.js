@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Form, Modal, Input, Button, message } from "antd";
-import { performWalletTopUp } from "../../apicalls";
+import {fundWallet} from "../../apicalls";
 
 function LoadWalletModal({ showLoadWalletModal, setShowLoadWalletModal, user = {} }) {
     const [form] = Form.useForm();
@@ -17,7 +17,7 @@ function LoadWalletModal({ showLoadWalletModal, setShowLoadWalletModal, user = {
                 return;
             }
 
-            const response = await performWalletTopUp(user.id, values.amount);
+            const response = await fundWallet(user.id, values.amount);
             message.success("Wallet loaded successfully!");
             console.log("Wallet Top-Up Response:", response);
 

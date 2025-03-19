@@ -1,0 +1,123 @@
+/* General Page Styling */
+.profile-container {
+    max-width: 800px; /* Increased width for landscape layout */
+    margin: 50px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+/* Title Styling */
+.profile-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Form Styling */
+.profile-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+/* Two-column form fields */
+.form-group {
+    flex: 1 1 48%; /* Ensures two equal-width columns */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels */
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+/* Input Fields */
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background: #f9f9f9;
+    transition: border 0.3s ease-in-out;
+}
+
+.form-input:focus {
+    border-color: #C9A227;
+    outline: none;
+    background: #fff;
+}
+
+/* Select Dropdown */
+.form-input select {
+    appearance: none;
+    padding-right: 30px;
+}
+
+/* Single-column full-width fields */
+.full-width {
+    flex: 1 1 100%;
+}
+
+/* Success and Error Messages */
+.success-message {
+    color: #28a745;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Button Styling */
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    background-color: #C9A227;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.submit-button:hover {
+    color: #005A30;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Loading */
+.loading-container {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .profile-form {
+        flex-direction: column;
+    }
+    .form-group {
+        flex: 1 1 100%;
+    }
+}

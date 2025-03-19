@@ -17,7 +17,7 @@ public class Wallet {
     private Long walletId;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "Id", nullable = false)
     private User user;
 
     @Column(nullable = false)

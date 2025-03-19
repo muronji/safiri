@@ -65,15 +65,15 @@ public class StripeWebhookService {
     }
 
     private ResponseEntity<String> handleCheckoutSession(Session session) {
-        String customerIdStr = session.getMetadata().get("customerId");
+        String idStr = session.getMetadata().get("id"); // Now fetching "id"
         String transactionIdStr = session.getMetadata().get("transactionId");
 
-        if (customerIdStr == null || transactionIdStr == null) {
+        if (idStr == null || transactionIdStr == null) {
             log.error("Customer ID or Transaction ID is missing from session metadata.");
             return ResponseEntity.badRequest().body("Customer ID or Transaction ID is missing");
         }
 
-        Long customerId = Long.parseLong(customerIdStr);
+        Long id = Long.parseLong(idStr);
         long transactionId;
         try {
             transactionId = Long.parseLong(transactionIdStr);
@@ -82,17 +82,18 @@ public class StripeWebhookService {
             return ResponseEntity.badRequest().body("Invalid Transaction ID format");
         }
 
-        Optional<User> customerOpt = userRepository.findById(customerId);
+        Optional<User> customerOpt = userRepository.findById(id);
 
         if (customerOpt.isPresent()) {
             long amount = session.getAmountTotal();
-            walletService.updateWalletBalance(customerId, amount, true);
+            walletService.updateWalletBalance(id, amount, true);
             transactionService.updateTransactionStatus(transactionId, "SUCCESS");
-            log.info("Successfully updated wallet for customer ID: {} with amount: {}", customerId, amount);
+            log.info("Successfully updated wallet for customer ID: {} with amount: {}", id, amount);
             return ResponseEntity.ok("Wallet updated successfully");
         } else {
-            log.error("Customer with ID {} not found", customerId);
+            log.error("Customer with ID {} not found", id);
             return ResponseEntity.badRequest().body("Customer not found");
         }
     }
+
 }

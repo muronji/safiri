@@ -10,12 +10,14 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class StripeService {
 
     @Value("${secret-key}")
@@ -36,14 +38,14 @@ public class StripeService {
             return new StripeResponse("FAILED", "Invalid amount specified", null, null);
         }
 
-        long customerId;
+        long id; // Ensure lowercase "id"
         try {
-            customerId = Long.parseLong(paymentRequest.getCustomerId());
+            id = Long.parseLong(paymentRequest.getId());
         } catch (NumberFormatException e) {
             return new StripeResponse("FAILED", "Invalid customer ID format", null, null);
         }
 
-        User user = userRepository.findById(customerId)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
         Transaction transaction = new Transaction();
@@ -56,8 +58,8 @@ public class StripeService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:8080/wallet/success")
-                .setCancelUrl("http://localhost:8080/wallet/cancel")
+                .setSuccessUrl("http://localhost:8080/home")
+                .setCancelUrl("http://localhost:8080/home")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
@@ -69,7 +71,7 @@ public class StripeService {
                                                 .build())
                                         .build())
                                 .build())
-                .putMetadata("customerId", String.valueOf(customerId))
+                .putMetadata("id", String.valueOf(id)) // Ensure "id" is consistent in metadata
                 .putMetadata("transactionId", String.valueOf(transaction.getTransactionId()))
                 .build();
 
@@ -79,9 +81,11 @@ public class StripeService {
             transaction.setTxRef(session.getId());
             transactionRepository.save(transaction);
 
+            log.info("Received payment request: id={}, amount={}", paymentRequest.getId(), paymentRequest.getAmount());
             return new StripeResponse("SUCCESS", "Wallet funding session created", session.getId(), session.getUrl());
         } catch (StripeException e) {
             return new StripeResponse("FAILED", "Error creating session: " + e.getMessage(), null, null);
         }
     }
+
 }
