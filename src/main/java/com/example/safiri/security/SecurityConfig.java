@@ -33,8 +33,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/static/**", "/api/v1/auth/**").permitAll()  // ✅ Allow static resources
-                        .requestMatchers("/api/mobile-money/**").authenticated()
+                        .requestMatchers("/", "/index.html", "/static/**", "/api/v1/auth/**", "/static/**", "/images/**", "/manifest.json").permitAll()  // ✅ Allow static resources
+                        .requestMatchers("/api/mobile-money/**", "api/wallet/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

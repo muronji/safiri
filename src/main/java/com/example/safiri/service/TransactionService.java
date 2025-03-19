@@ -70,4 +70,30 @@ public class TransactionService {
     public List<Transaction> getTransactionsByCustomerId(Long customerId) {
         return transactionRepository.findByUser_Id(customerId);
     }
+
+    @Transactional
+    public void updateTransactionOnB2CCallback(String txRef, boolean isSuccessful) {
+        Optional<Transaction> transactionOpt = transactionRepository.findByTxRef(txRef);
+        if (transactionOpt.isPresent()) {
+            Transaction transaction = transactionOpt.get();
+            if (isSuccessful) {
+                transaction.setTransactionStatus(Transaction.TransactionStatus.SUCCESS);
+                User user = transaction.getUser();
+                user.setWalletBalance(user.getWalletBalance().add(transaction.getAmount()));
+            } else {
+                transaction.setTransactionStatus(Transaction.TransactionStatus.FAILED);
+            }
+            transaction.setLastUpdated(LocalDateTime.now());
+            transactionRepository.save(transaction);
+            log.info("Transaction with txRef {} updated based on B2C callback.", txRef);
+        } else {
+            log.error("Transaction with txRef {} not found for B2C callback.", txRef);
+        }
+    }
+
+    @Transactional
+    public Transaction handleB2CTransaction(Long customerId, BigDecimal amount, String txRef) {
+        return createPendingTransaction(customerId, amount, txRef, Transaction.TransactionType.WITHDRAWAL);
+    }
+
 }

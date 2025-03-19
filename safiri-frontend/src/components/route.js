@@ -1,11 +1,13 @@
-import HomePage from "../pages/HomePage";
-import TransactionsPage from '../pages/TransactionsPage';
+import HomePage from "../pages/home/HomePage";
+import Transactions from '../pages/Transactions';
 import ProfilePage from '../pages/ProfilePage';
+import SendMoneyModal from "../pages/home/SendMoneyModal";
 
 const routes = [
     { path: "/home", element: <HomePage /> },
-    { path: "/transactions", element: <TransactionsPage /> },
-    { path: "/profile", element: <ProfilePage /> }
+    { path: "/transactions", element: <Transactions /> },
+    { path: "/profile", element: <ProfilePage /> },
+    {path: "/send-money", element: <SendMoneyModal />}
 ];
 
 export default routes;

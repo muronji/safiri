@@ -40,7 +40,7 @@
 .form-button {
     background-color: var(--primary-color, #004B23) !important;
     border-color: var(--primary-color, #004B23) !important;
-    color: white !important;
+    color: white;
     padding: 10px 20px;
     font-size: 16px;
     border-radius: 5px;
@@ -48,8 +48,7 @@
 }
 
 .form-button:hover {
-    background-color: darkgreen !important;
-    border-color: darkgreen !important;
+    color: var(--secondary-color, #C9A227);
 }
 
 .form-footer {

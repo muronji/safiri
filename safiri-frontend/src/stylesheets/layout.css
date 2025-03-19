@@ -70,7 +70,11 @@
 }
 
 .content{
-    padding: 15px;
+    padding-top: 15px;
+}
+
+.uppercase{
+    text-transform: uppercase;
 }
 
 .sidebar {

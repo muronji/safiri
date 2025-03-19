@@ -5,16 +5,16 @@ import routes from "./components/route";
 import "remixicon/fonts/remixicon.css";
 import "./stylesheets/text-elements.css";
 import "./stylesheets/form-elements.css";
-import "./stylesheets/custom-components.css";
 import "./stylesheets/alignments.css";
 import "./stylesheets/theme.css";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import { AuthProvider, useAuth } from "./redux/AuthContext";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/home/HomePage";
 import ProtectedRoute from "./redux/ProtectedRoutes";
-import TransactionsPage from "./pages/TransactionsPage";
+import Transactions from "./pages/Transactions";
 import ProfilePage from "./pages/ProfilePage";
+import SendMoneyModal from "./pages/home/SendMoneyModal";
 
 const App = () => {
     return (
@@ -32,8 +32,9 @@ const App = () => {
                     <Route element={<ProtectedRoute />}>
                         <Route element={<DefaultLayoutWrapper />}>
                             <Route path="/home" element={<HomePage />} />
-                            <Route path="/transactions" element={<TransactionsPage />} />
+                            <Route path="/transactions" element={<Transactions />} />
                             <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/send-money" element={<SendMoneyModal />} />
                         </Route>
                     </Route>
 

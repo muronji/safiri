@@ -20,8 +20,8 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping("/customer/{customerId}")
-    public List<Transaction> getTransactionsByCustomerId(@PathVariable Long customerId) {
-        return transactionService.getTransactionsByCustomerId(customerId);
+    @GetMapping("/customer/{Id}")
+    public List<Transaction> getTransactionsByCustomerId(@PathVariable Long Id) {
+        return transactionService.getTransactionsByCustomerId(Id);
     }
 }
