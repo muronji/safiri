@@ -1,8 +1,10 @@
 import axios from "axios";
 
-// src/services/authService.js
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = "https://1e83-197-139-54-10.ngrok-free.app/api";
 
+/**
+ * Login user and store JWT token
+ */
 export const loginUser = async (credentials) => {
     try {
         const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
@@ -19,10 +21,14 @@ export const loginUser = async (credentials) => {
 
         return data;
     } catch (error) {
+        console.error("Login error:", error);
         throw error;
     }
 };
 
+/**
+ * Register user
+ */
 export const registerUser = async (formData) => {
     try {
         const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
@@ -32,22 +38,17 @@ export const registerUser = async (formData) => {
         });
 
         const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Registration failed!");
 
-        if (!response.ok) {
-            throw new Error(data.message || "Registration failed!");
-        }
-
-        return data; // Return response data for further processing
+        return data;
     } catch (error) {
-        throw new Error(error.message);
+        console.error("Registration error:", error);
+        throw error;
     }
 };
 
 /**
- * Fetches transactions for a specific user.
- * @param {string} userId - The ID of the user whose transactions need to be fetched.
- * @param {string} token - The authentication token for authorization.
- * @returns {Promise<Array>} - A promise resolving to an array of transactions.
+ * Fetch transactions for a user
  */
 export const fetchUserTransactions = async (userId, token) => {
     try {
@@ -64,57 +65,64 @@ export const fetchUserTransactions = async (userId, token) => {
         }));
     } catch (error) {
         console.error("Error fetching transactions:", error);
-        return []; // ✅ Return empty array to prevent UI crash
+        return [];
     }
 };
 
-
+/**
+ * Fetch user wallet balance
+ */
 export const fetchWalletBalance = async (userId) => {
     try {
         console.log("Fetching wallet balance for user:", userId);
 
-        // Retrieve JWT token from localStorage
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token")?.trim();
         if (!token) {
-            console.error("No JWT token found in localStorage!");
-            throw new Error("Unauthorized: No token provided.");
+            console.warn("No JWT token found or it's empty.");
+            return 0;
         }
 
-        // Send API request with Authorization header
         const response = await fetch(`${API_BASE_URL}/wallet/balance/${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Attach JWT token
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`,
             },
         });
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch wallet balance");
+        console.log(`Response Status: ${response.status} - ${response.statusText}`);
+
+        // Check if response is JSON
+        const contentType = response.headers.get("Content-Type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error("Unexpected non-JSON response:", text);
+            throw new Error("Invalid API response format.");
         }
 
-        const balance = await response.json();
-        console.log("API Response Wallet Balance:", balance);
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
+        }
 
-        return Number(balance);
+        const data = await response.json();
+        console.log("Full API Response:", JSON.stringify(data, null, 2));
+
+        return Number(data.balance ?? data.data?.balance ?? 0); // Handle different response formats
     } catch (error) {
-        console.error("Error fetching wallet balance:", error);
+        console.error("Error fetching wallet balance:", error.message);
         return 0;
     }
 };
 
-/*
-* Perform a B2C transaction by sending money to a user.
-* @param {number} id - The user ID.
-* @param {Object} data - Transaction data including receiver and amount.
-* @returns {Promise} API response.
-*/
+
+/**
+ * Perform a B2C transaction
+ */
 export const performB2CTransaction = async (id, data) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/b2c-transaction/${id}`, data, {
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
         });
         return response.data;
     } catch (error) {
@@ -124,59 +132,64 @@ export const performB2CTransaction = async (id, data) => {
 };
 
 /**
- * Perform wallet top-up via API
- * @param {string} userId - User's ID
- * @param {number} amount - Amount to top-up
- * @returns {Promise<Object>} - API response
+ * Fund wallet
  */
 export const fundWallet = async (userId, amount) => {
     try {
-        const token = localStorage.getItem("token"); // Get JWT token
-        if (!token) {
-            throw new Error("Unauthorized: No token found.");
-        }
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Unauthorized: No token found.");
 
         const response = await fetch(`${API_BASE_URL}/payment/fund-wallet`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // ✅ Attach token
+                "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify({ userId, amount }),
+            body: JSON.stringify({
+                id: (userId), // Ensure it's a string
+                currency: "USD",
+                amount: amount
+            }),
         });
+        if (!response.ok) throw new Error("Wallet top-up failed.");
 
-        if (!response.ok) {
-            throw new Error("Wallet top-up failed.");
+        const data = await response.json();
+        // Redirect to Stripe session URL
+        if (data.status === "SUCCESS" && data.sessionUrl) {
+            window.location.href = data.sessionUrl;
+        } else {
+            throw new Error("Failed to initiate Stripe checkout.");
         }
 
-        return await response.json();
+
     } catch (error) {
         console.error("Error funding wallet:", error);
         throw error;
     }
 };
 
+
+/**
+ * Fetch customer profile
+ */
 export const getCustomerProfile = async () => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId"); // ✅ Get stored userId
+    const userId = localStorage.getItem("userId");
 
-    if (!token || !userId) {
-        throw new Error("Unauthorized: No token or userId provided.");
-    }
+    if (!token || !userId) throw new Error("Unauthorized: No token or userId provided.");
 
     try {
         const response = await fetch(`${API_BASE_URL}/v1/users/profile/${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`,
             },
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error("Error response:", errorData);
-            throw new Error(`Failed to fetch profile: ${errorData.message || "Unknown error"}`);
+            throw new Error(errorData.message || "Failed to fetch profile.");
         }
 
         return await response.json();
@@ -186,34 +199,28 @@ export const getCustomerProfile = async () => {
     }
 };
 
-
-
-
-
+/**
+ * Update customer profile
+ */
 export const updateCustomerProfile = async (formData) => {
     try {
         const token = localStorage.getItem("token");
-        if (!token) {
-            console.error("No JWT token found in localStorage!");
-            throw new Error("Unauthorized: No token provided.");
-        }
+        if (!token) throw new Error("Unauthorized: No token provided.");
 
         const response = await fetch(`${API_BASE_URL}/v1/users/`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`, // Attach token
+                "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify(formData),
         });
 
         if (!response.ok) throw new Error("Failed to update profile.");
+
         return await response.json();
     } catch (error) {
         console.error("Error updating profile:", error);
         throw error;
     }
 };
-
-
-

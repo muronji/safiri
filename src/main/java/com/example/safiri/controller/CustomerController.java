@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:8080", "https://*.ngrok-free.app"})
 @RequestMapping("api/v1/users")
 public class CustomerController {
     private final CustomerService customerService;

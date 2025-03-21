@@ -6,13 +6,11 @@ import com.example.safiri.service.StripeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payment")
+@CrossOrigin(origins = {"http://localhost:8080", "https://*.ngrok-free.app"})
 @AllArgsConstructor
 public class PaymentCheckoutController {
     private final StripeService stripeService;
@@ -20,6 +18,7 @@ public class PaymentCheckoutController {
     @PostMapping("/fund-wallet")
     public ResponseEntity<StripeResponse> fundWallet(@RequestBody PaymentRequest paymentRequest) {
         StripeResponse stripeResponse = stripeService.createWalletFundingSession(paymentRequest);
+        System.out.println("Request Body: " + paymentRequest); // Debugging
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(stripeResponse);

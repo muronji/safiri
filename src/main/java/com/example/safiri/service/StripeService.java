@@ -33,6 +33,7 @@ public class StripeService {
 
     public StripeResponse createWalletFundingSession(PaymentRequest paymentRequest) {
         Stripe.apiKey = secretKey;
+        System.out.println("Received userId: " + paymentRequest.getId());
 
         if (paymentRequest.getAmount() == null || paymentRequest.getAmount() <= 0) {
             return new StripeResponse("FAILED", "Invalid amount specified", null, null);
