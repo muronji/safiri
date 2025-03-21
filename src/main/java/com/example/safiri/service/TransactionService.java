@@ -6,6 +6,7 @@ import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
 import com.example.safiri.repository.TransactionRepository;
 import com.example.safiri.repository.UserRepository;
+import com.example.safiri.repository.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,25 +23,14 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final CustomerService customerService;
     private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
 
     @Transactional
     public Transaction createPendingTransaction(Long customerId, BigDecimal amount, String txRef, Transaction.TransactionType type) {
-        CustomerResponse customerResponse = customerService.getCustomerById(customerId); // Ensure customer exists
-
-        // Convert CustomerResponse to Customer
-        User user = new User();
-        user.setId(customerResponse.getId());
-        user.setFirstName(customerResponse.getFirstName());
-        user.setLastName(customerResponse.getLastName());
-        user.setEmail(customerResponse.getEmail());
-        user.setPhoneNumber(customerResponse.getPhoneNumber());
-        user.setIdentifier(customerResponse.getIdentifier());
-        user.setIdentifierType(customerResponse.getIdentifierType());
-        user.setWalletBalance(customerResponse.getWalletBalance());
-        user.setCreationDate(LocalDateTime.now());
-        user.setLastUpdated(LocalDateTime.now());
+        // Instead of converting CustomerResponse to User, fetch the actual User entity
+        User user = userRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("User not found for Customer ID: " + customerId));
 
         Transaction transaction = new Transaction();
         transaction.setUser(user);
@@ -56,6 +46,7 @@ public class TransactionService {
 
         return savedTransaction;
     }
+
 
     @Transactional
     public void updateTransactionStatus(Long transactionId, String status) {
@@ -83,14 +74,27 @@ public class TransactionService {
         Optional<Transaction> transactionOpt = transactionRepository.findByTxRef(txRef);
         if (transactionOpt.isPresent()) {
             Transaction transaction = transactionOpt.get();
-            User user = transaction.getUser();
+            // Re-fetch the User from the repository to ensure it's managed.
+            User user = userRepository.findById(transaction.getUser().getId())
+                    .orElseThrow(() -> new RuntimeException("User not found for txRef: " + txRef));
 
             if (isSuccessful) {
                 transaction.setTransactionStatus(Transaction.TransactionStatus.SUCCESS);
-                user.setWalletBalance(user.getWalletBalance().subtract(transaction.getAmount())); // Deduct amount
+                log.info("Before update, user wallet balance: {}", user.getWalletBalance());
+                BigDecimal newBalance = user.getWalletBalance().subtract(transaction.getAmount());
+                user.setWalletBalance(newBalance);
+                log.info("After update, user wallet balance: {}", newBalance);
 
-                // Save user to persist balance update
+                // Update the Wallet entity if it exists.
+                if (user.getWallet() != null) {
+                    user.getWallet().setWalletBalance(newBalance);
+                    // Save wallet explicitly if needed.
+                    walletRepository.save(user.getWallet());
+                    log.info("Wallet entity updated with new balance: {}", newBalance);
+                }
+
                 userRepository.save(user);
+                userRepository.flush(); // Force flush if necessary
             } else {
                 transaction.setTransactionStatus(Transaction.TransactionStatus.FAILED);
             }
@@ -102,6 +106,7 @@ public class TransactionService {
             log.error("Transaction with txRef {} not found for B2C callback.", txRef);
         }
     }
+
 
 
     @Transactional
