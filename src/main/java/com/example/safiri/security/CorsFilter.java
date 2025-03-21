@@ -1,11 +1,6 @@
 package com.example.safiri.security;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -16,15 +11,17 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import org.springframework.core.env.Environment;
+
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(CorsFilter.class);
+    private final String baseUrl;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Initialization logic if needed
+    public CorsFilter(Environment environment) {
+        this.baseUrl = environment.getProperty("app.base.url", "http://localhost:8080"); // Default if missing
     }
 
     @Override
@@ -37,9 +34,7 @@ public class CorsFilter implements Filter {
         logger.info("CORS Filter processing request: " + request.getMethod() + " " + request.getRequestURI());
         logger.info("Origin: " + origin);
 
-        // Only allow specific origins
-        if (origin != null && (origin.equals("http://localhost:8080") ||
-                origin.equals("https://1e83-197-139-54-10.ngrok-free.app"))) {
+        if (origin != null && (origin.equals("http://localhost:8080") || origin.equals(baseUrl))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
@@ -54,9 +49,5 @@ public class CorsFilter implements Filter {
             chain.doFilter(req, res);
         }
     }
-
-    @Override
-    public void destroy() {
-        // Cleanup logic if needed
-    }
 }
+

@@ -1,9 +1,11 @@
 package com.example.safiri.service;
 
 import com.example.safiri.dto.CustomerResponse;
+import com.example.safiri.dto.TransactionDTO;
 import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
 import com.example.safiri.repository.TransactionRepository;
+import com.example.safiri.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final CustomerService customerService;
+    private final UserRepository userRepository;
 
     @Transactional
     public Transaction createPendingTransaction(Long customerId, BigDecimal amount, String txRef, Transaction.TransactionType type) {
@@ -67,29 +70,39 @@ public class TransactionService {
             log.error("Transaction with ID {} not found", transactionId);
         }
     }
-    public List<Transaction> getTransactionsByCustomerId(Long customerId) {
-        return transactionRepository.findByUser_Id(customerId);
+    public List<TransactionDTO> getTransactionsByUserId(Long Id) {
+        List<Transaction> transactions = transactionRepository.findByUser_Id(Id);
+        return transactions.stream()
+                .map(tx -> new TransactionDTO(tx.getTransactionId(), tx.getAmount(),tx.getUser().getId(), tx.getTransactionType().name(), tx.getTransactionStatus().name(), tx.getTransactionDate()))
+                .toList();
     }
+
 
     @Transactional
     public void updateTransactionOnB2CCallback(String txRef, boolean isSuccessful) {
         Optional<Transaction> transactionOpt = transactionRepository.findByTxRef(txRef);
         if (transactionOpt.isPresent()) {
             Transaction transaction = transactionOpt.get();
+            User user = transaction.getUser();
+
             if (isSuccessful) {
                 transaction.setTransactionStatus(Transaction.TransactionStatus.SUCCESS);
-                User user = transaction.getUser();
-                user.setWalletBalance(user.getWalletBalance().add(transaction.getAmount()));
+                user.setWalletBalance(user.getWalletBalance().subtract(transaction.getAmount())); // Deduct amount
+
+                // Save user to persist balance update
+                userRepository.save(user);
             } else {
                 transaction.setTransactionStatus(Transaction.TransactionStatus.FAILED);
             }
+
             transaction.setLastUpdated(LocalDateTime.now());
-            transactionRepository.save(transaction);
+            transactionRepository.save(transaction); // Save transaction update
             log.info("Transaction with txRef {} updated based on B2C callback.", txRef);
         } else {
             log.error("Transaction with txRef {} not found for B2C callback.", txRef);
         }
     }
+
 
     @Transactional
     public Transaction handleB2CTransaction(Long customerId, BigDecimal amount, String txRef) {

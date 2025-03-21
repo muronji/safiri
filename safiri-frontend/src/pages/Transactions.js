@@ -47,15 +47,20 @@ const Transactions = () => {
                         </thead>
                         <tbody>
                         {transactions.length > 0 ? (
-                            transactions.map((tx, index) => (
-                                <tr key={index}>
-                                    <td>{tx.date}</td>
-                                    <td>{tx.txRef || "N/A"}</td>
-                                    <td>${tx.amount.toFixed(2)}</td>
-                                    <td>{tx.type}</td>
-                                    <td className={tx.status.toLowerCase()}>{tx.status}</td>
-                                </tr>
-                            ))
+                            transactions.map((tx, index) => {
+                                console.log("Rendering transaction:", tx); // Add this for debugging
+                                return (
+                                    <tr key={index}>
+                                        <td>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString() : 'N/A'}</td>
+                                        <td>{tx.txRef || 'N/A'}</td>
+                                        <td>${typeof tx.amount === 'number' ? tx.amount.toFixed(2) : '0.00'}</td>
+                                        <td>{tx.transactionType || 'Unknown'}</td>
+                                        <td className={(tx.transactionStatus || "unknown").toLowerCase()}>
+                                            {tx.transactionStatus || 'Unknown'}
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         ) : (
                             <tr>
                                 <td colSpan="5" className="no-transactions">

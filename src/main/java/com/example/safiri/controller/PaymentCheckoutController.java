@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = {"http://localhost:8080", "https://*.ngrok-free.app"})
 @AllArgsConstructor
 public class PaymentCheckoutController {
     private final StripeService stripeService;

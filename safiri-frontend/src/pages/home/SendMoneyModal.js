@@ -52,12 +52,12 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
                     rules={[
                         { required: true, message: "Phone number is required" },
                         {
-                            pattern: /^0\d{9}$/,
-                            message: "Phone number must be 10 digits and start with 0",
+                            pattern: /^2547\\d{8}$/,
+                            message: "Phone number must be 10 digits and start with 254",
                         },
                     ]}
                 >
-                    <Input placeholder="0712345678" maxLength={10} />
+                    <Input placeholder="254712345678" maxLength={12} />
                 </Form.Item>
 
                 <Form.Item

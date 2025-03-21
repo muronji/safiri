@@ -46,8 +46,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ Allow preflight requests
-                        .requestMatchers("/", "/index.html", "/static/**", "/api/v1/auth/**", "/images/**", "/manifest.json").permitAll()
-                        .requestMatchers("/api/mobile-money/**", "/api/wallet/**", "/api/v1/users/**").authenticated()
+                        .requestMatchers("/", "/index.html", "/static/**", "/api/v1/auth/**", "/images/**", "/manifest.json", "/stripe-webhook/stripe").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

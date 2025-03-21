@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/mobile-money")
-@CrossOrigin(origins = {"http://localhost:8080", "https://*.ngrok-free.app"})
 @RequiredArgsConstructor
 @Slf4j
 public class MpesaController {

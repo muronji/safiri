@@ -22,7 +22,10 @@ const Home = () => {
             try {
                 const balance = await fetchWalletBalance(user.id);
                 console.log("Wallet balance fetched:", balance);
-                setWalletBalance(balance);
+                setWalletBalance(prevBalance => {
+                    console.log(`Previous: ${prevBalance}, New: ${balance}`);
+                    return balance;
+                });
             } catch (error) {
                 console.error("Error fetching balance:", error);
             }
@@ -30,6 +33,7 @@ const Home = () => {
 
         loadBalance();
     }, [user?.id]);
+
 
     return (
         <div className="home-container">
