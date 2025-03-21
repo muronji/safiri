@@ -1,9 +1,8 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Form, Modal, Input, Button, message } from "antd";
-import {performB2CTransaction} from "../../apicalls";
+import { performB2CTransaction } from "../../apicalls";
 
-function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }) {  // Default to empty object
-
+function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }) {
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -13,7 +12,6 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
     useEffect(() => {
         console.log("SendMoneyModal opened. User:", user);
     }, []);
-
 
     const handleSendMoney = async () => {
         try {
@@ -27,7 +25,6 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
 
             // Call the API to perform the transaction
             const response = await performB2CTransaction(user.id, transactionData);
-
             message.success("Transaction successful!");
             console.log("Transaction Response:", response);
             setShowSendMoneyModal(false);
@@ -44,16 +41,15 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
             onCancel={() => setShowSendMoneyModal(false)}
             footer={null}
         >
-        <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical">
                 <Form.Item
                     label="Phone Number"
                     name="receiver"
-                    className="w-100"
                     rules={[
                         { required: true, message: "Phone number is required" },
                         {
-                            pattern: /^2547\\d{8}$/,
-                            message: "Phone number must be 10 digits and start with 254",
+                            pattern: /^2547\d{8}$/,
+                            message: "Phone number must be 12 digits, starting with 2547",
                         },
                     ]}
                 >
@@ -63,12 +59,11 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
                 <Form.Item
                     label="Amount"
                     name="amount"
-                    className="w-100"
                     rules={[
                         { required: true, message: "Please enter an amount" },
                         {
                             validator: (_, value) =>
-                                value > 0 && value <= (user?.balance ?? 0)  // Use optional chaining to avoid undefined errors
+                                value > 0 && value <= (user?.walletBalance ?? 0)
                                     ? Promise.resolve()
                                     : Promise.reject(new Error("Insufficient funds")),
                         },
@@ -77,12 +72,23 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
                     <Input type="number" placeholder="1000" />
                 </Form.Item>
 
-                <div className="flex justify-end gap-1">
-                    <Button onClick={() => setShowSendMoneyModal(false)}>Cancel</Button>
-                    <Button type="primary" onClick={handleSendMoney}>
-                        Send
-                    </Button>
-                </div>
+                {/* Disable Send button if any form fields have errors */}
+                <Form.Item shouldUpdate>
+                    {() => (
+                        <div className="flex justify-end gap-1">
+                            <Button onClick={() => setShowSendMoneyModal(false)}>Cancel</Button>
+                            <Button
+                                type="primary"
+                                onClick={handleSendMoney}
+                                disabled={
+                                    form.getFieldsError().some(({ errors }) => errors.length)
+                                }
+                            >
+                                Send
+                            </Button>
+                        </div>
+                    )}
+                </Form.Item>
             </Form>
         </Modal>
     );

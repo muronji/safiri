@@ -70,15 +70,21 @@ export const fetchWalletBalance = async (userId) => {
 /**
  * Perform a B2C transaction
  */
-export const performB2CTransaction = async (id, requestData) => {
+export const performB2CTransaction = async (id, values) => {
+    const transactionData = {
+        PartyB: values.receiver,  // Map "receiver" to "PartyB"
+        Amount: values.amount       // Map "amount" to "Amount"
+    };
+
     try {
-        const { data } = await apiClient.post(`/b2c-transaction/${id}`, requestData);
+        const { data } = await apiClient.post(`mobile-money/b2c-transaction/${id}`, transactionData);
         return data;
     } catch (error) {
         console.error("Error performing B2C transaction:", error.response?.data || error.message);
         throw error;
     }
 };
+
 
 /**
  * Fund wallet
