@@ -1,4 +1,5 @@
 import apiClient from "./apiClient";
+import transactions from "../pages/Transactions";
 
 /**
  * Login user and store JWT token
@@ -34,25 +35,26 @@ export const registerUser = async (formData) => {
 export const fetchUserTransactions = async (userId) => {
     try {
         const { data } = await apiClient.get(`/transaction/customer/${userId}`);
-        console.log("Raw data from API:", data); // Add this for debugging
+        console.log("Raw data from API:", data); // Debugging
 
-        return data.map((tx) => {
-            // Map database field names to component field names
-            const transaction = {
-                transactionDate: tx.transaction_date,
-                txRef: tx.tx_ref || 'N/A',
-                amount: parseFloat(tx.amount || 0),
-                transactionType: tx.transaction_type || 'Unknown',
-                transactionStatus: tx.transaction_status || 'Unknown'
-            };
-            console.log("Mapped transaction:", transaction); // Add this for debugging
-            return transaction;
-        });
+        // Map database field names to component field names
+        const mappedTransactions = data.map(txn => ({
+            amount: txn.amount,
+            transactionDate: txn.transactionDate, // ✅ Correct field name
+            transactionStatus: txn.transactionStatus || "Unknown", // ✅ Correct field name
+            transactionType: txn.transactionType || "Unknown", // ✅ Correct field name
+            txRef: txn.txRef || "N/A" // ✅ Handle missing field
+        }));
+
+        console.log("Mapped transactions:", mappedTransactions); // Debugging
+
+        return mappedTransactions;
     } catch (error) {
         console.error("Error fetching transactions:", error.response?.data || error.message);
         return [];
     }
 };
+;
 
 /**
  * Fetch user wallet balance
