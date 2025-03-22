@@ -1,20 +1,13 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://296f-196-207-172-170.ngrok-free.app/api";
+const API_BASE_URL = "https://61b0-105-160-86-150.ngrok-free.app/api";
 
 // Create an Axios instance
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     headers: { "Content-Type": "application/json" },
+    withCredentials: true, // ✅ Ensures cookies are sent & received automatically
 });
 
-// Attach Authorization header dynamically
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-}, (error) => Promise.reject(error));
-
+// Remove the Authorization header logic
 export default apiClient;

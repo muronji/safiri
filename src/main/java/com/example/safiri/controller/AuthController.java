@@ -6,7 +6,10 @@ import com.example.safiri.dto.CustomerRequest;
 import com.example.safiri.dto.LoginRequest;
 import com.example.safiri.security.AuthenticationService;
 import com.example.safiri.service.RegistrationService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +22,9 @@ public class AuthController {
     private final RegistrationService registrationService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        AuthResponse response = authenticationService.authenticate(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authenticationService.authenticate(request, response);
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/register")
@@ -37,4 +40,19 @@ public class AuthController {
         return ResponseEntity.ok("Admin registration successful.");
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+        return ResponseEntity.ok("Logged out successfully.");
+    }
 }
+

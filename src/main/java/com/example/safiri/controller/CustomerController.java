@@ -1,5 +1,6 @@
 package com.example.safiri.controller;
 
+import com.example.safiri.dto.CustomerAuthResponse;
 import com.example.safiri.dto.CustomerRequest;
 import com.example.safiri.dto.CustomerResponse;
 import com.example.safiri.service.CustomerService;
@@ -23,18 +24,16 @@ public class CustomerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createCustomer(@RequestBody CustomerRequest customerRequest) {
+    public ResponseEntity<CustomerAuthResponse> createCustomer(@RequestBody CustomerRequest customerRequest) {
         try {
-            logger.info("Received CustomerRequest: {}", customerRequest);
-            CustomerResponse createdCustomer = customerService.createCustomer(customerRequest);
-
-            logger.info("Created CustomerResponse: {}", createdCustomer);
-            return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+            CustomerAuthResponse response = customerService.createCustomer(customerRequest);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Failed to create customer: {}", e.getMessage());
-            return new ResponseEntity<>("Failed to create customer: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @GetMapping
     public ResponseEntity<?> getAllCustomers() {

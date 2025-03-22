@@ -4,7 +4,7 @@ import com.example.safiri.dto.AuthResponse;
 import com.example.safiri.dto.LoginRequest;
 import com.example.safiri.model.User;
 import com.example.safiri.repository.UserRepository;
-import com.example.safiri.service.CustomerService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +19,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public AuthResponse authenticate(LoginRequest request) {
+    public AuthResponse authenticate(LoginRequest request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -27,10 +27,10 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        String token = jwtService.generateToken(user); // Use User directly
+        String jwtToken = jwtService.generateToken(user, 1000 * 60 * 60); // 1 hour expiration
+        jwtService.generateAndSetTokens(response, user);
 
-        // Return token + user details
-        return new AuthResponse(token, user);
+        return new AuthResponse(jwtToken, user);
     }
 
 }

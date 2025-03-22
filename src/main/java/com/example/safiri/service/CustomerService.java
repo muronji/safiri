@@ -1,12 +1,15 @@
 package com.example.safiri.service;
 
 import com.example.safiri.CustomerMapper;
+import com.example.safiri.dto.CustomerAuthResponse;
 import com.example.safiri.dto.CustomerRequest;
 import com.example.safiri.dto.CustomerResponse;
 import com.example.safiri.model.Role;
 import com.example.safiri.model.User;
 import com.example.safiri.model.Wallet;
 import com.example.safiri.repository.UserRepository;
+import com.example.safiri.security.AuthenticationService;
+import com.example.safiri.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,7 @@ public class CustomerService implements UserDetailsService {
     private final UserRepository userRepository;
     private final CustomerMapper customerMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -41,7 +45,7 @@ public class CustomerService implements UserDetailsService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public CustomerResponse createCustomer(CustomerRequest customerRequest) {
+    public CustomerAuthResponse createCustomer(CustomerRequest customerRequest) {
         log.info("Received CustomerRequest: {}", customerRequest);
 
         if (userRepository.findByEmail(customerRequest.getEmail()).isPresent()) {
@@ -49,10 +53,10 @@ public class CustomerService implements UserDetailsService {
         }
 
         User user = customerMapper.toUser(customerRequest);
-        log.info("Mapped user entity before saving: {}", user);
         user.setPassword(passwordEncoder.encode(customerRequest.getPassword())); // Encrypt password
         user.setWalletBalance(BigDecimal.ZERO);
         user.setRole(Role.CUSTOMER);
+        user.setEnabled(true);
 
         Wallet wallet = new Wallet();
         wallet.setUser(user);
@@ -60,9 +64,16 @@ public class CustomerService implements UserDetailsService {
         user.setWallet(wallet);
 
         log.info("Saving new customer: {}", user);
-        User savedUser = userRepository.save(user); // Persist customer to the DB
-        return customerMapper.toCustomerResponse(savedUser);
+        User savedUser = userRepository.save(user); // Persist customer
+
+        long expirationMs = 1000 * 60 * 60; // Example: 1 hour
+        String jwtToken = jwtService.generateToken(savedUser, expirationMs);
+
+        return new CustomerAuthResponse(customerMapper.toCustomerResponse(savedUser), jwtToken);
     }
+
+
+
 
     public CustomerResponse getCustomerById(Long Id) {
         User user = userRepository.findById(Id)
@@ -70,7 +81,7 @@ public class CustomerService implements UserDetailsService {
 
         log.info("Retrieved User from DB: {}", user);
 
-        CustomerResponse response = customerMapper.mapToResponse(user);
+        CustomerResponse response = customerMapper.toCustomerResponse(user);
         log.info("Mapped CustomerResponse: {}", response);
 
         return response;

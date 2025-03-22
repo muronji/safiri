@@ -9,28 +9,18 @@ import org.mapstruct.MappingTarget;
 import java.math.BigDecimal;
 
 
+import org.mapstruct.Mapping;
+
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
 
+    @Mapping(target = "id", ignore = true) // Ignore ID since it's auto-generated
+    @Mapping(target = "wallet", ignore = true) // Wallet is set separately
+    @Mapping(target = "walletBalance", ignore = true) // Avoid setting walletBalance manually
+    @Mapping(target = "password", ignore = true) // Password is encrypted separately
     User toUser(CustomerRequest customerRequest);
 
     CustomerResponse toCustomerResponse(User user);
 
     void updateCustomerFromDTO(CustomerRequest customerRequest, @MappingTarget User user);
-
-    // Add a default method to check mapping
-    default CustomerResponse mapToResponse(User user) {
-        if (user == null) return null;
-
-        return new CustomerResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getWallet() != null ? user.getWallet().getWalletBalance() : BigDecimal.ZERO,
-                user.getIdentifier(),
-                user.getIdentifierType()
-        );
-    }
 }

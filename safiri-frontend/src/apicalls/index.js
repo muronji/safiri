@@ -1,12 +1,13 @@
 import apiClient from "./apiClient";
-import transactions from "../pages/Transactions";
 
 /**
- * Login user and store JWT token
+ * Login user - Cookies store JWT automatically
  */
 export const loginUser = async (credentials) => {
     try {
-        const { data } = await apiClient.post("/v1/auth/login", credentials);
+        const { data } = await apiClient.post("/v1/auth/login", credentials, {
+            withCredentials: true,
+        });
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id);
         return data;
@@ -16,12 +17,15 @@ export const loginUser = async (credentials) => {
     }
 };
 
+
 /**
  * Register user
  */
 export const registerUser = async (formData) => {
     try {
-        const { data } = await apiClient.post("/v1/auth/register", formData);
+        const { data } = await apiClient.post("/v1/auth/register", formData, {
+            withCredentials: true,
+        });
         return data;
     } catch (error) {
         console.error("Registration error:", error.response?.data || error.message);
@@ -34,34 +38,36 @@ export const registerUser = async (formData) => {
  */
 export const fetchUserTransactions = async (userId) => {
     try {
-        const { data } = await apiClient.get(`/transaction/customer/${userId}`);
-        console.log("Raw data from API:", data); // Debugging
+        const { data } = await apiClient.get(`/transaction/customer/${userId}`, {
+            withCredentials: true, // ✅ Include session cookie
+        });
 
-        // Map database field names to component field names
+        console.log("Raw data from API:", data);
+
         const mappedTransactions = data.map(txn => ({
             amount: txn.amount,
-            transactionDate: txn.transactionDate, // ✅ Correct field name
-            transactionStatus: txn.transactionStatus || "Unknown", // ✅ Correct field name
-            transactionType: txn.transactionType || "Unknown", // ✅ Correct field name
-            txRef: txn.txRef || "N/A" // ✅ Handle missing field
+            transactionDate: txn.transactionDate,
+            transactionStatus: txn.transactionStatus || "Unknown",
+            transactionType: txn.transactionType || "Unknown",
+            txRef: txn.txRef || "N/A",
         }));
 
-        console.log("Mapped transactions:", mappedTransactions); // Debugging
-
+        console.log("Mapped transactions:", mappedTransactions);
         return mappedTransactions;
     } catch (error) {
         console.error("Error fetching transactions:", error.response?.data || error.message);
         return [];
     }
 };
-;
 
 /**
  * Fetch user wallet balance
  */
 export const fetchWalletBalance = async (userId) => {
     try {
-        const { data } = await apiClient.get(`/wallet/balance/${userId}`);
+        const { data } = await apiClient.get(`/wallet/balance/${userId}`, {
+            withCredentials: true,
+        });
         return data;
     } catch (error) {
         console.error("Error fetching wallet balance:", error.response?.data || error.message);
@@ -74,19 +80,20 @@ export const fetchWalletBalance = async (userId) => {
  */
 export const performB2CTransaction = async (id, values) => {
     const transactionData = {
-        PartyB: values.receiver,  // Map "receiver" to "PartyB"
-        Amount: values.amount       // Map "amount" to "Amount"
+        PartyB: values.receiver,
+        Amount: values.amount,
     };
 
     try {
-        const { data } = await apiClient.post(`mobile-money/b2c-transaction/${id}`, transactionData);
+        const { data } = await apiClient.post(`mobile-money/b2c-transaction/${id}`, transactionData, {
+            withCredentials: true,
+        });
         return data;
     } catch (error) {
         console.error("Error performing B2C transaction:", error.response?.data || error.message);
         throw error;
     }
 };
-
 
 /**
  * Fund wallet
@@ -97,6 +104,8 @@ export const fundWallet = async (userId, amount) => {
             id: userId,
             currency: "USD",
             amount: amount,
+        }, {
+            withCredentials: true,
         });
 
         if (data.status === "SUCCESS" && data.sessionUrl) {
@@ -118,7 +127,10 @@ export const getCustomerProfile = async () => {
         const userId = localStorage.getItem("userId");
         if (!userId) throw new Error("Unauthorized: No userId found.");
 
-        const { data } = await apiClient.get(`/v1/users/profile/${userId}`);
+        const { data } = await apiClient.get(`/v1/users/profile/${userId}`, {
+            withCredentials: true,
+        });
+
         return data;
     } catch (error) {
         console.error("Error fetching profile:", error.response?.data || error.message);
@@ -131,7 +143,9 @@ export const getCustomerProfile = async () => {
  */
 export const updateCustomerProfile = async (formData) => {
     try {
-        const { data } = await apiClient.put("/v1/users/", formData);
+        const { data } = await apiClient.put("/v1/users/", formData, {
+            withCredentials: true,
+        });
         return data;
     } catch (error) {
         console.error("Error updating profile:", error.response?.data || error.message);

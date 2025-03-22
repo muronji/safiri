@@ -5,54 +5,34 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Load authentication state from localStorage on mount
-    useEffect(() => {
-        const savedUser = localStorage.getItem("user");
-        const savedToken = localStorage.getItem("authToken");
-
-        if (savedUser) {
-            try {
-                setUser(JSON.parse(savedUser));
-            } catch (error) {
-                console.error("Error parsing user JSON:", error);
-                localStorage.removeItem("user"); // Clear corrupted data
-            }
+    const login = async (credentials) => {
+        try {
+            const response = await axios.post("/api/auth/login", credentials, {
+                withCredentials: true, // Ensures cookies are sent
+            });
+            setUser(response.data.user);
+            setIsAuthenticated(true);
+            return response.data;
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error;
         }
-
-        if (savedToken) {
-            setToken(savedToken);
-        }
-    }, []);
-
-    //Fix: Move the useEffect inside AuthProvider
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common["Authorization"];
-        }
-    }, [token]);  // Runs whenever `token` changes
-
-    // Login function - saves user and token
-    const login = (userData, authToken) => {
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("authToken", authToken);
-        setUser(userData);
-        setToken(authToken);
     };
 
-    // Logout function - clears authentication data
-    const logout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("authToken");
-        setUser(null);
-        setToken(null);
+    const logout = async () => {
+        try {
+            await axios.post("/api/auth/logout", {}, { withCredentials: true });
+            setUser(null);
+            setIsAuthenticated(false);
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,7 +1,9 @@
 package com.example.safiri.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,38 +31,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws ServletException, IOException {
-        logger.debug("🔹 JWT Filter Executing...");
+        logger.debug("JWT Filter Executing...");
 
-        String authHeader = request.getHeader("Authorization");
+        String token = jwtService.extractTokenFromCookies(request, "access_token");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            logger.warn("No JWT Token found in request.");
+        if (token == null) {
+            logger.debug("No JWT Token found in cookies.");
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-        String username = jwtService.extractUsername(token);
+        try {
+            String username = jwtService.extractUsername(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (userDetails == null) {
-                logger.error("UserDetails not found for username: {}", username);
-                filterChain.doFilter(request, response);
-                return;
+                if (jwtService.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.info("User authenticated from cookie: {}", username);
+                } else {
+                    logger.warn("Invalid JWT token.");
+                }
             }
-
-            if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.info("✅ User authenticated: {}", username);
-            } else {
-                logger.warn("❌ Invalid or expired JWT token for user: {}", username);
-            }
+        } catch (ExpiredJwtException e) {
+            logger.warn("JWT Token expired: {}", e.getMessage());
+            // Clear both access and refresh tokens if expired
+            response.addCookie(clearJwtCookie("access_token"));
+            response.addCookie(clearJwtCookie("refresh_token"));
+        } catch (Exception e) {
+            logger.error("JWT Validation Error: {}", e.getMessage());
         }
+
         filterChain.doFilter(request, response);
+    }
+
+    private Cookie clearJwtCookie(String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // Expire immediately
+        return cookie;
     }
 }
