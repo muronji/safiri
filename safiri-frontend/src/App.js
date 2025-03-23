@@ -16,33 +16,38 @@ import Transactions from "./pages/Transactions";
 import ProfilePage from "./pages/ProfilePage";
 import SendMoneyModal from "./pages/home/SendMoneyModal";
 
-const App = () => {
+// Create a separate component that uses useAuth
+const AppRoutes = () => {
+    const { loading } = useAuth();
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
-        <AuthProvider>
         <Router>
-                <Routes>
-                    {/* Redirect root ("/") to Login */}
-                    <Route path="/" element={<Navigate to="/login" />} />
+            <Routes>
+                {/* Redirect root ("/") to Login */}
+                <Route path="/" element={<Navigate to="/login" />} />
 
-                    {/* Public Routes */}
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                {/* Public Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-                    {/* Protected routes */}
-                    <Route element={<ProtectedRoute />}>
-                        <Route element={<DefaultLayoutWrapper />}>
-                            <Route path="/home" element={<HomePage />} />
-                            <Route path="/transactions" element={<Transactions />} />
-                            <Route path="/profile" element={<ProfilePage />} />
-                            <Route path="/send-money" element={<SendMoneyModal />} />
-                        </Route>
+                {/* Protected routes */}
+                <Route element={<ProtectedRoute />}>
+                    <Route element={<DefaultLayoutWrapper />}>
+                        <Route path="/home" element={<HomePage />} />
+                        <Route path="/transactions" element={<Transactions />} />
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/send-money" element={<SendMoneyModal />} />
                     </Route>
+                </Route>
 
-                    {/* Default redirect */}
-                    <Route path="*" element={<Login />} />
-                </Routes>
+                {/* Default redirect */}
+                <Route path="*" element={<Login />} />
+            </Routes>
         </Router>
-        </AuthProvider>
     );
 };
 
@@ -56,6 +61,15 @@ const DefaultLayoutWrapper = () => {
                 ))}
             </Routes>
         </DefaultLayout>
+    );
+};
+
+// Main App component that provides the AuthProvider
+const App = () => {
+    return (
+        <AuthProvider>
+            <AppRoutes />
+        </AuthProvider>
     );
 };
 

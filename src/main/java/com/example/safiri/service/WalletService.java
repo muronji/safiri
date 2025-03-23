@@ -67,8 +67,8 @@ public class WalletService {
         log.info("Wallet updated for customer ID: {}. New balance: {}", Id, newBalance);
     }
 
-    // Get wallet balance for a customer
     public BigDecimal getWalletBalance(Long Id) {
         return getOrCreateWallet(Id).getWalletBalance();
     }
+
 }

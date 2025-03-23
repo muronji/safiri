@@ -18,22 +18,26 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
             const values = await form.validateFields();
             console.log("Sending money:", values);
 
-            const transactionData = {
+            // Pass the values directly to performB2CTransaction
+            const response = await performB2CTransaction({
                 receiver: values.receiver,
-                amount: values.amount,
-            };
+                amount: values.amount
+            });
 
-            // Call the API to perform the transaction
-            const response = await performB2CTransaction(user.id, transactionData);
             message.success("Transaction successful!");
             console.log("Transaction Response:", response);
             setShowSendMoneyModal(false);
+
+            // Optionally refresh user balance after successful transaction
+            // if you have a function to do so
+
         } catch (error) {
             message.error("Transaction failed. Please try again.");
             console.log("Error:", error);
         }
     };
 
+    // Rest of the component remains the same
     return (
         <Modal
             title="Send Money"
@@ -72,7 +76,6 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
                     <Input type="number" placeholder="1000" />
                 </Form.Item>
 
-                {/* Disable Send button if any form fields have errors */}
                 <Form.Item shouldUpdate>
                     {() => (
                         <div className="flex justify-end gap-1">

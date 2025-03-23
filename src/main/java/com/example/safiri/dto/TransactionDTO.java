@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 public class TransactionDTO {
-    private Long id;
+    private String txRef;
     private BigDecimal amount;
     private Long transactionId;
     private String transactionType;

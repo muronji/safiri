@@ -72,22 +72,6 @@ public class CustomerService implements UserDetailsService {
         return new CustomerAuthResponse(customerMapper.toCustomerResponse(savedUser), jwtToken);
     }
 
-
-
-
-    public CustomerResponse getCustomerById(Long Id) {
-        User user = userRepository.findById(Id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
-
-        log.info("Retrieved User from DB: {}", user);
-
-        CustomerResponse response = customerMapper.toCustomerResponse(user);
-        log.info("Mapped CustomerResponse: {}", response);
-
-        return response;
-    }
-
-
     public List<CustomerResponse> getAllCustomers() {
         return userRepository.findAll()
                 .stream()
@@ -95,23 +79,26 @@ public class CustomerService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteCustomer(Long Id) {
-        if (userRepository.existsById(Id)) {
-            userRepository.deleteById(Id);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id);
-        }
-    }
+    public CustomerResponse updateCustomerByEmail(String email, CustomerRequest customerRequest) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with email: " + email));
 
-    public CustomerResponse updateCustomer(Long Id, CustomerRequest customerRequest) {
-        User user = userRepository.findById(Id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
-
+        // Update the customer details
         customerMapper.updateCustomerFromDTO(customerRequest, user);
         User updatedUser = userRepository.save(user);
 
+        // Return the updated customer response
         return customerMapper.toCustomerResponse(updatedUser);
     }
+
+    public void deleteCustomerByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with email: " + email));
+
+        // Delete the customer
+        userRepository.delete(user);
+    }
+
 
     public boolean customerExists(Long Id) {
         return userRepository.existsById(Id);
@@ -122,10 +109,18 @@ public class CustomerService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("Customer does not exist"));
     }
 
-    public String getCustomerEmail(Long Id) {
-        User user = userRepository.findById(Id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + Id));
-        return user.getEmail();
+    public CustomerResponse getCustomerByEmail(String email) {
+        // Fetch user by email (the email is extracted from the JWT token in the controller)
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with email: " + email));
+
+        log.info("Retrieved User from DB: {}", user);
+
+        CustomerResponse response = customerMapper.toCustomerResponse(user);
+        log.info("Mapped CustomerResponse: {}", response);
+
+        return response;
     }
+
 
 }

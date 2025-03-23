@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Form, Modal, Input, Button, message } from "antd";
 import {fundWallet} from "../../apicalls";
 
+
 function LoadWalletModal({ showLoadWalletModal, setShowLoadWalletModal, user = {} }) {
     const [form] = Form.useForm();
 
@@ -12,20 +13,19 @@ function LoadWalletModal({ showLoadWalletModal, setShowLoadWalletModal, user = {
     const handleLoadWallet = async () => {
         try {
             const values = await form.validateFields();
-            if (!user || !user.id) {
-                message.error("User not found. Please log in.");
-                return;
-            }
+            console.log("Amount from form:", values.amount);
 
-            const response = await fundWallet(user.id, values.amount);
-            message.success("Wallet loaded successfully!");
+            // No need to check for user.id since backend uses authentication
+            // Just pass the amount
+            const response = await fundWallet(values.amount);
             console.log("Wallet Top-Up Response:", response);
 
+            message.success("Wallet loaded successfully!");
             setShowLoadWalletModal(false);
             form.resetFields();
         } catch (error) {
             message.error("Wallet top-up failed. Please try again.");
-            console.log("Error:", error);
+            console.log("Error details:", error);
         }
     };
 

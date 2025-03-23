@@ -64,8 +64,16 @@ public class TransactionService {
     public List<TransactionDTO> getTransactionsByUserId(Long Id) {
         List<Transaction> transactions = transactionRepository.findByUser_Id(Id);
         return transactions.stream()
-                .map(tx -> new TransactionDTO(tx.getTransactionId(), tx.getAmount(),tx.getUser().getId(), tx.getTransactionType().name(), tx.getTransactionStatus().name(), tx.getTransactionDate()))
+                .map(tx -> new TransactionDTO(
+                        tx.getTxRef(),
+                        tx.getAmount(),
+                        tx.getTransactionId(),
+                        tx.getTransactionType().name(),
+                        tx.getTransactionStatus().name(),
+                        tx.getTransactionDate()
+                ))
                 .toList();
+
     }
 
 

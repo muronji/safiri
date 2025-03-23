@@ -2,22 +2,27 @@ import React from "react";
 import "./../stylesheets/layout.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./../images/international.png";
-import {useAuth} from "../redux/AuthContext";
+import { useAuth } from "../redux/AuthContext";
+import { logoutUser } from "./../apicalls/index";  // ✅ Import logoutUser function
 
 const DefaultLayout = ({ children }) => {
-    const [showSidebar, setShowSidebar] = React.useState(true); // Default to expanded
+    const [showSidebar, setShowSidebar] = React.useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuth(); // ✅ Get user from context
+    const { user } = useAuth();  // Removed `logout` since we handle it manually
 
     const userMenu = [
         { title: 'Home', icon: <i className="ri-home-7-line"></i>, onClick: () => navigate("/home"), path: '/home' },
         { title: 'Transactions', icon: <i className="ri-bank-line"></i>, onClick: () => navigate("/transactions"), path: '/transactions' },
         { title: 'Profile', icon: <i className="ri-user-line"></i>, onClick: () => navigate("/profile"), path: '/profile' },
-        { title: 'Logout', icon: <i className="ri-logout-box-line"></i>, onClick: () => {
-                logout(); // ✅ Use context logout function
-                navigate("/login");
-            }}
+        {
+            title: 'Logout',
+            icon: <i className="ri-logout-box-line"></i>,
+            onClick: async () => {
+                const success = await logoutUser();  // ✅ Call logout function
+                if (success) navigate("/login");  // Redirect only if logout succeeds
+            }
+        }
     ];
 
     return (
@@ -51,7 +56,7 @@ const DefaultLayout = ({ children }) => {
                     </div>
                     <h1 className="text-xl text-center flex-grow text-white">SAFIRI</h1>
                     <div>
-                        <h1 className="text-sm underline">{user?.firstName || "Guest"}</h1>  {/* ✅ Use optional chaining */}
+                        <h1 className="text-sm underline">{user?.firstName || "Guest"}</h1>
                     </div>
                 </div>
                 <div className="content">{children}</div>

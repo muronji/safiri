@@ -12,6 +12,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,7 +34,6 @@ public class StripeService {
 
     public StripeResponse createWalletFundingSession(PaymentRequest paymentRequest) {
         Stripe.apiKey = secretKey;
-        System.out.println("Received userId: " + paymentRequest.getId());
 
         if (paymentRequest.getAmount() == null || paymentRequest.getAmount() <= 0) {
             return new StripeResponse("FAILED", "Invalid amount specified", null, null);
@@ -59,8 +59,8 @@ public class StripeService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("https://296f-196-207-172-170.ngrok-free.app/home")
-                .setCancelUrl("https://296f-196-207-172-170.ngrok-free.app/home")
+                .setSuccessUrl("https://3539-105-160-86-150.ngrok-free.app/home")
+                .setCancelUrl("https://3539-105-160-86-150.ngrok-free.app/home")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
@@ -88,5 +88,4 @@ public class StripeService {
             return new StripeResponse("FAILED", "Error creating session: " + e.getMessage(), null, null);
         }
     }
-
 }
