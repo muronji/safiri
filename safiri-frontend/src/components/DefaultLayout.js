@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import "./../stylesheets/layout.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./../images/international.png";
@@ -11,24 +11,16 @@ const DefaultLayout = ({ children }) => {
     const navigate = useNavigate();
     const { user } = useAuth();
 
+    // List of report pages
+    const reportPages = ["/transactions", "/CustomerReports"];
+
+    // Check if current page is a report page
+    const isReportLayout = reportPages.includes(location.pathname);
+
     const getDisplayName = () => {
-        // Direct check on the full user object
         if (user) {
-            // Try firstName first, then fall back to other options
-            if (user.firstName) {
-                return user.firstName;
-            }
-
-            if (user.username) {
-                // If username is an email, split it
-                return user.username.split('@')[0];
-            }
-
-            if (user.email) {
-                return user.email.split('@')[0];
-            }
+            return user.firstName || user.username?.split('@')[0] || user.email?.split('@')[0] || "Guest";
         }
-
         return "Guest";
     };
 
@@ -40,7 +32,7 @@ const DefaultLayout = ({ children }) => {
         { title: 'Home', icon: <i className="ri-home-7-line"></i>, onClick: () => navigate("/home"), path: '/home' },
         { title: 'Transactions', icon: <i className="ri-bank-line"></i>, onClick: () => navigate("/transactions"), path: '/transactions' },
         { title: 'Profile', icon: <i className="ri-user-line"></i>, onClick: () => navigate("/profile"), path: '/profile' },
-        {title: 'Customer Reports', icon: <i className="ri-file-list-3-line"></i>, onClick: () => navigate("/CustomerReports"), path: '/CustomerReports'},
+        { title: 'Customer Reports', icon: <i className="ri-file-list-3-line"></i>, onClick: () => navigate("/CustomerReports"), path: '/CustomerReports' },
         {
             title: 'Logout',
             icon: <i className="ri-logout-box-line"></i>,
@@ -73,18 +65,20 @@ const DefaultLayout = ({ children }) => {
                     })}
                 </div>
             </div>
-            <div className="body">
-                <div className="header flex items-center justify-between px-4">
-                    <div className="menu-icon">
-                        <i className={showSidebar ? "ri-close-line" : "ri-menu-line"}
-                           onClick={() => setShowSidebar(!showSidebar)}
-                        ></i>
+            <div className={`body ${isReportLayout ? "report-layout" : ""}`}>
+                {!isReportLayout && (
+                    <div className="header flex items-center justify-between px-4">
+                        <div className="menu-icon">
+                            <i className={showSidebar ? "ri-close-line" : "ri-menu-line"}
+                               onClick={() => setShowSidebar(!showSidebar)}
+                            ></i>
+                        </div>
+                        <h1 className="text-xl text-center flex-grow text-white">SAFIRI</h1>
+                        <div>
+                            <h1 className="text-sm underline">{getDisplayName()}</h1>
+                        </div>
                     </div>
-                    <h1 className="text-xl text-center flex-grow text-white">SAFIRI</h1>
-                    <div>
-                        <h1 className="text-sm underline">{getDisplayName()}</h1>
-                    </div>
-                </div>
+                )}
                 <div className="content">{children}</div>
             </div>
         </div>

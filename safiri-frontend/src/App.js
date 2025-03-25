@@ -15,7 +15,7 @@ import ProtectedRoute from "./redux/ProtectedRoutes";
 import Transactions from "./pages/Transactions";
 import ProfilePage from "./pages/ProfilePage";
 import SendMoneyModal from "./pages/home/SendMoneyModal";
-import CustomerReports from "./pages/CustomersReport";
+import CustomerReports from "./pages/admin/CustomersReport";
 import LoadWalletModal from "./pages/home/LoadWalletModal";
 
 // Create a separate component that uses useAuth

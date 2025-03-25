@@ -1,42 +1,32 @@
 .transactions-container {
-    max-width: 900px;
-    margin: 20px auto;
+    background-color: white;
     padding: 20px;
-    background: white;
     border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(20, 90, 50, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align the title */
 }
 
-.loading,
-.error {
-    text-align: center;
-    font-size: 16px;
-    margin: 10px 0;
-    color: #d9534f;
-}
-
-.transactions-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.transactions-table th,
-.transactions-table td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-.transactions-table thead th {
-    background-color: transparent !important;  /* Remove background */
-    color: #666 !important;  /* Set text color to black */
+.title {
+    font-size: 24px;
     font-weight: bold;
+    color: #145A32; /* Green */
+    text-align: center;
+    margin-bottom: 20px;
 }
 
+.filters {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end; /* Align filter to the left */
+    margin-bottom: 10px;
+}
 
-.transactions-table tbody tr:hover {
-    background: #f5f5f5;
+.table-card {
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 .success {
@@ -56,24 +46,57 @@
 
 .no-transactions {
     text-align: center;
-    font-style: italic;
-    color: gray;
-}
-
-.no-transactions {
-    text-align: center;
     padding: 20px;
 }
 
 .no-transactions p {
     margin-top: 10px;
     font-size: 16px;
-    color: #555;
+    color: #004B23;
 }
 
-/* Center the icon and text */
 .no-transactions svg {
     display: block;
     margin: 0 auto;
+    color: #C9A227;
 }
 
+.loading,
+.error {
+    text-align: center;
+    font-size: 16px;
+    margin: 10px 0;
+    color: #004B23;
+}
+
+/* Ant Design Table Customizations */
+.ant-table-thead > tr > th {
+    background-color: #004B23 !important;
+    color: #C9A227 !important;
+}
+
+.ant-table-row:hover {
+    background-color: rgba(201, 162, 39, 0.1) !important;
+}
+
+.ant-pagination-item-active {
+    background-color: #C9A227;
+    border-color: #004B23;
+}
+
+.ant-pagination-item:hover {
+    border-color: #C9A227;
+}
+
+.ant-input,
+.ant-select .ant-select-selector {
+    border-color: #004B23;
+}
+
+.ant-input:focus,
+.ant-select:focus,
+.ant-input:hover,
+.ant-select:hover {
+    border-color: #C9A227 !important;
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2) !important;
+}

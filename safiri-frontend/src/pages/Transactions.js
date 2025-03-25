@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../redux/AuthContext";
-import axios from "axios";
-import PageTitle from "../components/PageTitle";
+import { fetchUserTransactions } from "../apicalls";
+import { SearchOutlined } from "@ant-design/icons";
+import { Card, Input, Table } from "antd";
 import "../stylesheets/transaction.css";
-import {fetchUserTransactions} from "../apicalls";
-import { InboxOutlined } from "@ant-design/icons";
 
 const Transactions = () => {
     const { user, token } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
         if (!user) return;
@@ -27,54 +27,91 @@ const Transactions = () => {
         })();
     }, [user, token]);
 
+    // Filter transactions based on search
+    const filteredTransactions = transactions.filter(tx =>
+        Object.values(tx).some(value =>
+            String(value).toLowerCase().includes(searchText.toLowerCase())
+        )
+    );
+
+    const columns = [
+        {
+            title: 'Date',
+            dataIndex: 'transactionDate',
+            key: 'transactionDate',
+            render: (date) => date ? new Date(date).toLocaleString() : 'N/A',
+            sorter: (a, b) => new Date(a.transactionDate) - new Date(b.transactionDate)
+        },
+        {
+            title: 'Tx Ref',
+            dataIndex: 'txRef',
+            key: 'txRef',
+            render: (txRef) => txRef || 'N/A'
+        },
+        {
+            title: 'Amount',
+            dataIndex: 'amount',
+            key: 'amount',
+            render: (amount) => `$${typeof amount === 'number' ? amount.toFixed(2) : '0.00'}`,
+            sorter: (a, b) => a.amount - b.amount
+        },
+        {
+            title: 'Type',
+            dataIndex: 'transactionType',
+            key: 'transactionType',
+            render: (type) => type || 'Unknown'
+        },
+        {
+            title: 'Status',
+            dataIndex: 'transactionStatus',
+            key: 'transactionStatus',
+            render: (status) => (
+                <span className={(status || "unknown").toLowerCase()}>
+                    {status || 'Unknown'}
+                </span>
+            ),
+            filters: [
+                { text: 'Success', value: 'success' },
+                { text: 'Pending', value: 'pending' },
+                { text: 'Failed', value: 'failed' }
+            ],
+            onFilter: (value, record) =>
+                record.transactionStatus.toLowerCase() === value
+        }
+    ];
+
     return (
-        <div>
-            <PageTitle title="Transactions" />
-            <div className="transactions-container">
+        <div className="transactions-container">
+            <h1 className="title">Transactions</h1>
+            <div className="filters">
+                <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="Search transactions"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    style={{ width: 250 }}
+                />
+            </div>
+            <Card className="table-card">
                 {loading && <p className="loading">Loading transactions...</p>}
                 {error && <p className="error">{error}</p>}
-
                 {!loading && !error && (
-                    <table className="transactions-table">
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Tx Ref</th>
-                            <th>Amount</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {transactions.length > 0 ? (
-                            transactions.map((tx, index) => {
-                                console.log("Rendering transaction:", tx); // Add this for debugging
-                                return (
-                                    <tr key={index}>
-                                        <td>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString() : 'N/A'}</td>
-                                        <td>{tx.txRef || 'N/A'}</td>
-                                        <td>${typeof tx.amount === 'number' ? tx.amount.toFixed(2) : '0.00'}</td>
-                                        <td>{tx.transactionType || 'Unknown'}</td>
-                                        <td className={(tx.transactionStatus || "unknown").toLowerCase()}>
-                                            {tx.transactionStatus || 'Unknown'}
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        ) : (
-                            <tr>
-                                <td colSpan="5" className="no-transactions">
-                                    <InboxOutlined style={{fontSize: "40px", color: "#888"}}/>
-                                    <p>No transactions found</p>
-                                </td>
-                            </tr>
-                        )}
-                        </tbody>
-                    </table>
+                    <Table
+                        dataSource={filteredTransactions}
+                        columns={columns}
+                        rowKey="txRef"
+                        pagination={{
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} transactions`
+                        }}
+                        scroll={{ x: "100%" }}
+                    />
                 )}
-            </div>
+            </Card>
         </div>
     );
+
 };
 
 export default Transactions;
