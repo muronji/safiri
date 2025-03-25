@@ -3,32 +3,45 @@ import { Button, Form, Input, message } from "antd";
 import "./../../stylesheets/form.css";
 import logo from "./../../images/international.png";
 import { Link, useNavigate } from "react-router-dom";
-import {loginUser} from "../../apicalls";
-import {useAuth} from "../../redux/AuthContext";
+import { loginUser } from "../../apicalls";
+import { useAuth } from "../../redux/AuthContext";
 
 const Login = () => {
     const [form] = Form.useForm();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth(); // Get login function from AuthContext
+    const { setUser, login } = useAuth();
 
     const handleSubmit = async () => {
         try {
             setIsSubmitting(true);
-            const values = await form.validateFields(); // Get form values
+            const values = await form.validateFields();
 
-            const data = await loginUser(values); // Call API service function
+            console.log("Login Attempt - Payload:", {
+                email: values.email,
+                passwordLength: values.password.length
+            });
 
-            if (data.token) {
-                login(data.user, data.token); // Update global auth state
-                message.success("Login successful! Redirecting...");
+            const authResponse = await loginUser(values);
 
-                setTimeout(() => navigate("/home"), 2000);
-            } else {
-                throw new Error("Invalid login response.");
-            }
+            console.log("Full Login Response:", authResponse);
+
+            // Directly set the user in the context
+            // Since the full user object is returned in the response
+            setUser(authResponse);
+
+            // Call login to update authentication state
+            await login(values);
+
+            message.success("Login successful! Redirecting...");
+            setTimeout(() => navigate("/home"), 1000);
         } catch (error) {
-            message.error(error.message || "Login failed!");
+            console.error("Login Error:", error);
+            message.error(
+                error.response?.data?.message ||
+                error.message ||
+                "Login failed! Please try again."
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -45,18 +58,35 @@ const Login = () => {
             </div>
 
             <Form form={form} layout="vertical">
-                <Form.Item label="Email" name="email"
-                           rules={[{ required: true, type: "email", message: "Enter a valid email" }]}>
+                <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[
+                        { required: true, type: "email", message: "Enter a valid email" }
+                    ]}
+                >
                     <Input placeholder="Enter email"/>
                 </Form.Item>
 
-                <Form.Item label="Password" name="password"
-                           rules={[{ required: true, message: "Enter your password" }]}>
+                <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[
+                        { required: true, message: "Enter your password" }
+                    ]}
+                >
                     <Input.Password placeholder="Enter password"/>
                 </Form.Item>
 
                 <div className="form-button-container">
-                    <Button type="primary" className="form-button" onClick={handleSubmit} loading={isSubmitting}>Login</Button>
+                    <Button
+                        type="primary"
+                        className="form-button"
+                        onClick={handleSubmit}
+                        loading={isSubmitting}
+                    >
+                        Login
+                    </Button>
                 </div>
 
                 <div className="form-footer">

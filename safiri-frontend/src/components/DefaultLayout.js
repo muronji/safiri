@@ -1,15 +1,40 @@
-import React from "react";
+import React, {useEffect} from "react";
 import "./../stylesheets/layout.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./../images/international.png";
 import { useAuth } from "../redux/AuthContext";
-import { logoutUser } from "./../apicalls/index";  // ✅ Import logoutUser function
+import { logoutUser } from "./../apicalls/index";
 
 const DefaultLayout = ({ children }) => {
     const [showSidebar, setShowSidebar] = React.useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth();  // Removed `logout` since we handle it manually
+    const { user } = useAuth();
+
+    const getDisplayName = () => {
+        // Direct check on the full user object
+        if (user) {
+            // Try firstName first, then fall back to other options
+            if (user.firstName) {
+                return user.firstName;
+            }
+
+            if (user.username) {
+                // If username is an email, split it
+                return user.username.split('@')[0];
+            }
+
+            if (user.email) {
+                return user.email.split('@')[0];
+            }
+        }
+
+        return "Guest";
+    };
+
+    useEffect(() => {
+        console.log("DefaultLayout - Current user:", user);
+    }, [user]);
 
     const userMenu = [
         { title: 'Home', icon: <i className="ri-home-7-line"></i>, onClick: () => navigate("/home"), path: '/home' },
@@ -20,8 +45,8 @@ const DefaultLayout = ({ children }) => {
             title: 'Logout',
             icon: <i className="ri-logout-box-line"></i>,
             onClick: async () => {
-                const success = await logoutUser();  // ✅ Call logout function
-                if (success) navigate("/login");  // Redirect only if logout succeeds
+                const success = await logoutUser();
+                if (success) navigate("/login");
             }
         }
     ];
@@ -57,7 +82,7 @@ const DefaultLayout = ({ children }) => {
                     </div>
                     <h1 className="text-xl text-center flex-grow text-white">SAFIRI</h1>
                     <div>
-                        <h1 className="text-sm underline">{user?.firstName || "Guest"}</h1>
+                        <h1 className="text-sm underline">{getDisplayName()}</h1>
                     </div>
                 </div>
                 <div className="content">{children}</div>
