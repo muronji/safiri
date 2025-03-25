@@ -15,6 +15,7 @@ const DefaultLayout = ({ children }) => {
         { title: 'Home', icon: <i className="ri-home-7-line"></i>, onClick: () => navigate("/home"), path: '/home' },
         { title: 'Transactions', icon: <i className="ri-bank-line"></i>, onClick: () => navigate("/transactions"), path: '/transactions' },
         { title: 'Profile', icon: <i className="ri-user-line"></i>, onClick: () => navigate("/profile"), path: '/profile' },
+        {title: 'Customer Reports', icon: <i className="ri-file-list-3-line"></i>, onClick: () => navigate("/CustomerReports"), path: '/CustomerReports'},
         {
             title: 'Logout',
             icon: <i className="ri-logout-box-line"></i>,

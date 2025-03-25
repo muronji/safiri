@@ -158,3 +158,18 @@ export const updateCustomerProfile = async (formData) => {
         throw error;
     }
 };
+
+/**
+ * Fetch customer reports
+ */
+export const fetchCustomerReports = async () => {
+    try {
+        const { data } = await apiClient.get("/v1/admin/all", {
+            withCredentials: true,  // Ensures the JWT cookie is sent
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching customer reports:", error.response?.data || error.message);
+        throw error;
+    }
+};
