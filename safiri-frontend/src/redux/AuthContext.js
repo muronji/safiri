@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import {loginUser, logoutUser} from "../apicalls";
 
 const AuthContext = createContext();
 
@@ -29,6 +30,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
+            const userData = await loginUser(credentials);
+            setUser(userData);
             setIsAuthenticated(true);
             return true;
         } catch (error) {
@@ -39,14 +42,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     const logout = async () => {
         try {
-            await axios.post("/api/v1/auth/logout", {}, { withCredentials: true });
+            const success = await logoutUser(); // Use the logoutUser from apicalls
+            if (success) {
+                setUser(null);
+                setIsAuthenticated(false);
+            }
+            return success;
         } catch (error) {
             console.error("Logout failed:", error);
-        } finally {
-            setUser(null);
-            setIsAuthenticated(false);
+            return false;
         }
     };
 
