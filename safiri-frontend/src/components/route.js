@@ -3,7 +3,8 @@ import Transactions from '../pages/Transactions';
 import ProfilePage from '../pages/ProfilePage';
 import SendMoneyModal from "../pages/home/SendMoneyModal";
 import LoadWalletModal from "../pages/home/LoadWalletModal";
-import CustomerReports from "../pages/admin/CustomersReport";
+import {TransactionsReport} from "../pages/admin/TransactionsReport";
+import CustomersReport from "../pages/admin/CustomersReport";
 
 const routes = [
     { path: "/home", element: <HomePage /> },
@@ -11,7 +12,8 @@ const routes = [
     { path: "/profile", element: <ProfilePage /> },
     {path: "/send-money", element: <SendMoneyModal />},
     {path: "/load-wallet", element: <LoadWalletModal />},
-    {path: "/CustomerReports", element: <CustomerReports />},
+    {path: "/customersReports", element: <CustomersReport />},
+    {path: "/transactionsReport", element: <TransactionsReport />}
 ];
 
 export default routes;

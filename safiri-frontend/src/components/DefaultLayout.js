@@ -4,6 +4,7 @@ import { useAuth } from "../redux/AuthContext";
 import { logoutUser } from "../apicalls";
 import logo from "./../images/international.png";
 import "./../stylesheets/layout.css";
+import {useProtectedRoute} from "../redux/UseProtectedRoutes";
 
 // Separate menu configuration for easier management
 const MENU_CONFIG = {
@@ -11,7 +12,7 @@ const MENU_CONFIG = {
         {
             title: 'Customer Reports',
             icon: <i className="ri-user-line"></i>,
-            path: '/customerReports'
+            path: '/customersReports'
         },
         {
             title: 'Transactions Report',
@@ -50,15 +51,16 @@ const MENU_CONFIG = {
 
 // Routes configuration
 const ROUTES_CONFIG = {
-    HIDE_HEADER: ["/transactions", "/customerReports", "/transactionsReport"],
-    AUTO_CLOSE_SIDEBAR: ["/transactions", "/customerReports", "/transactionsReport"]
+    HIDE_HEADER: ["/transactions", "/customersReports", "/transactionsReport"],
+    AUTO_CLOSE_SIDEBAR: ["/transactions", "/customersReports", "/transactionsReport"]
 };
 
 const DefaultLayout = ({ children }) => {
     const [showSidebar, setShowSidebar] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const user = useProtectedRoute(); // Use the new protected route hook
+    const { logout } = useAuth();
 
     // Improved logout handler with more robust error management
     const handleLogout = async () => {

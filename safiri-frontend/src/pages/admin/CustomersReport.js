@@ -5,23 +5,13 @@ import { fetchCustomerReports } from "../../apicalls";
 import "../../stylesheets/CustomerReports.css";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../../redux/AuthContext";
-
+import {useProtectedRoute} from "../../redux/UseProtectedRoutes";
 const { Option } = Select;
 
-export default function CustomerReports() {
-    const {user} = useAuth();
+export default function CustomersReport() {
+
+    const user = useProtectedRoute();
     const navigate = useNavigate();
-
-    console.log("User in CustomerReports:", user);
-
-
-    useEffect(() => {
-        if (!user) {
-            navigate("/login");  // Redirect to login if user is not authenticated
-        }
-    }, [user, navigate]);
-
-    if (!user) return null;
 
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("");

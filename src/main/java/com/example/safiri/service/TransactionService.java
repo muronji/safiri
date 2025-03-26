@@ -115,6 +115,20 @@ public class TransactionService {
         }
     }
 
+    public List<TransactionDTO> getAllTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+        return transactions.stream()
+                .map(tx -> new TransactionDTO(
+                        tx.getTxRef(),
+                        tx.getAmount(),
+                        tx.getTransactionId(),
+                        tx.getTransactionType().name(),
+                        tx.getTransactionStatus().name(),
+                        tx.getTransactionDate()
+                ))
+                .toList();
+    }
+
 
 
     @Transactional

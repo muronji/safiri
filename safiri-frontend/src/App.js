@@ -15,8 +15,9 @@ import ProtectedRoute from "./redux/ProtectedRoutes";
 import Transactions from "./pages/Transactions";
 import ProfilePage from "./pages/ProfilePage";
 import SendMoneyModal from "./pages/home/SendMoneyModal";
-import CustomerReports from "./pages/admin/CustomersReport";
 import LoadWalletModal from "./pages/home/LoadWalletModal";
+import {TransactionsReport} from "./pages/admin/TransactionsReport";
+import CustomersReport from "./pages/admin/CustomersReport";
 
 // Create a separate component that uses useAuth
 const AppRoutes = () => {
@@ -44,7 +45,8 @@ const AppRoutes = () => {
                         <Route path="/profile" element={<ProfilePage />} />
                         <Route path="/send-money" element={<SendMoneyModal />} />
                         <Route path="/load-wallet" element={<LoadWalletModal />} />
-                        <Route path="/CustomerReports" element={<CustomerReports />} />
+                        <Route path="/customersReports" element={<CustomersReport />} />
+                        <Route path="/transactionsReport" element={<TransactionsReport />} />
                     </Route>
                 </Route>
 

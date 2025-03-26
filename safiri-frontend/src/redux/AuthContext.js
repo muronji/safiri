@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import {loginUser, logoutUser} from "../apicalls";
+import {loginUser, logoutUser, fetchUserDetails} from "../apicalls";
+import {useNavigate} from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -11,11 +12,17 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuthStatus = useCallback(async () => {
         try {
+            // First, check if the user is authenticated
             const response = await axios.get("/api/v1/auth/me", {
                 withCredentials: true,
             });
-            setUser(response.data);
-            setIsAuthenticated(true);
+
+            // If authenticated, fetch full user details
+            if (response.data) {
+                const userDetails = await fetchUserDetails(); // Add this API call
+                setUser(userDetails);
+                setIsAuthenticated(true);
+            }
         } catch (error) {
             setUser(null);
             setIsAuthenticated(false);
@@ -31,7 +38,11 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const userData = await loginUser(credentials);
-            setUser(userData);
+
+            // Fetch full user details after login
+            const fullUserDetails = await fetchUserDetails();
+
+            setUser(fullUserDetails);
             setIsAuthenticated(true);
             return true;
         } catch (error) {
@@ -42,10 +53,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
     const logout = async () => {
         try {
-            const success = await logoutUser(); // Use the logoutUser from apicalls
+            const success = await logoutUser();
             if (success) {
                 setUser(null);
                 setIsAuthenticated(false);

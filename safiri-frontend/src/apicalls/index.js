@@ -33,6 +33,21 @@ export const logoutUser = async () => {
 };
 
 /**
+ * Fetch user details
+ */
+export const fetchUserDetails = async () => {
+    try {
+        const response = await axios.get("/api/v1/auth/me", {
+            withCredentials: true
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch user details", error);
+        throw error;
+    }
+};
+
+/**
  * Fetch transactions for current user (uses JWT cookie auth)
  */
 export const fetchUserTransactions = async () => {
@@ -164,7 +179,7 @@ export const updateCustomerProfile = async (formData) => {
  */
 export const fetchCustomerReports = async () => {
     try {
-        const { data } = await apiClient.get("/v1/admin/all", {
+        const { data } = await apiClient.get("/v1/admin/customers", {
             withCredentials: true,  // Ensures the JWT cookie is sent
         });
         return data;
@@ -173,3 +188,18 @@ export const fetchCustomerReports = async () => {
         throw error;
     }
 };
+
+/**
+ * Fetch all transactions
+ */
+export const fetchTransactions = async () => {
+    try {
+        const {data} = await apiClient.get("/v1/admin/transactions", {
+            withCredentials: true,
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching transactions:", error.response?.data || error.message);
+        throw error;
+    }
+}

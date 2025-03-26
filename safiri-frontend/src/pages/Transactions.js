@@ -4,9 +4,11 @@ import { fetchUserTransactions } from "../apicalls";
 import { SearchOutlined } from "@ant-design/icons";
 import { Card, Input, Table } from "antd";
 import "../stylesheets/transaction.css";
+import {useProtectedRoute} from "../redux/UseProtectedRoutes";
 
 const Transactions = () => {
-    const { user, token } = useAuth();
+    const user = useProtectedRoute();
+    const { token } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
