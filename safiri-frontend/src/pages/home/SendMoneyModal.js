@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
 import { Form, Modal, Input, Button, message } from "antd";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { performB2CTransaction } from "../../apicalls";
 
 function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }) {
     const [form] = Form.useForm();
+    const navigate = useNavigate(); // Initialize navigate function
 
     useEffect(() => {
         console.log("Modal should be visible:", showSendMoneyModal);
@@ -18,26 +20,33 @@ function SendMoneyModal({ showSendMoneyModal, setShowSendMoneyModal, user = {} }
             const values = await form.validateFields();
             console.log("Sending money:", values);
 
-            // Pass the values directly to performB2CTransaction
+            // Perform the transaction
             const response = await performB2CTransaction({
                 receiver: values.receiver,
                 amount: values.amount
             });
 
-            message.success("Transaction successful!");
-            console.log("Transaction Response:", response);
-            setShowSendMoneyModal(false);
+            if (response.success) {
+                message.success("Transaction successful!");
+                console.log("Transaction Response:", response);
 
-            // Optionally refresh user balance after successful transaction
-            // if you have a function to do so
+                // Close the modal
+                setShowSendMoneyModal(false);
+
+                // Redirect to TransactionsReceipt with partyB
+                navigate("/transactionsReceipt", {
+                    state: { receiver: values.receiver }
+                });
+            } else {
+                throw new Error(response.message || "Transaction failed.");
+            }
 
         } catch (error) {
-            message.error("Transaction failed. Please try again.");
+            message.error(error.message || "Transaction failed. Please try again.");
             console.log("Error:", error);
         }
     };
 
-    // Rest of the component remains the same
     return (
         <Modal
             title="Send Money"

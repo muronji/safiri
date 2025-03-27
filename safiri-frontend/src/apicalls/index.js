@@ -203,3 +203,18 @@ export const fetchTransactions = async () => {
         throw error;
     }
 }
+
+/**
+ * Fetch transactions receipt
+ */
+export const fetchTransactionsReceipt = async () => {
+    try {
+        const {data} = await apiClient.get("/transaction/receipt", {
+            withCredentials: true,
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching transactions receipt:", error.response?.data || error.message);
+        throw error;
+    }
+}

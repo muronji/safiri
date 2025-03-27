@@ -22,4 +22,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.user.id = :id AND t.transactionStatus = 'SUCCESS'")
     BigDecimal findWalletBalanceByUserId(@Param("id") Long id);
+
+    Optional<Transaction> findTopByUser_IdOrderByTransactionDateDesc(Long userId);
 }

@@ -15,8 +15,6 @@ function LoadWalletModal({ showLoadWalletModal, setShowLoadWalletModal, user = {
             const values = await form.validateFields();
             console.log("Amount from form:", values.amount);
 
-            // No need to check for user.id since backend uses authentication
-            // Just pass the amount
             const response = await fundWallet(values.amount);
             console.log("Wallet Top-Up Response:", response);
 

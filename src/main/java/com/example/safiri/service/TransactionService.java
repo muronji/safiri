@@ -2,6 +2,7 @@ package com.example.safiri.service;
 
 import com.example.safiri.dto.CustomerResponse;
 import com.example.safiri.dto.TransactionDTO;
+import com.example.safiri.dto.TransactionReceipt;
 import com.example.safiri.model.User;
 import com.example.safiri.model.Transaction;
 import com.example.safiri.repository.TransactionRepository;
@@ -129,7 +130,13 @@ public class TransactionService {
                 .toList();
     }
 
+    @Transactional
+    public TransactionReceipt generateLatestTransaction(User user) {
+        Transaction transaction = transactionRepository.findTopByUser_IdOrderByTransactionDateDesc(user.getId())
+                .orElseThrow(() -> new RuntimeException("No transactions found for user: " + user.getUsername()));
 
+        return new TransactionReceipt(transaction, user);
+    }
 
     @Transactional
     public Transaction handleB2CTransaction(Long customerId, BigDecimal amount, String txRef) {

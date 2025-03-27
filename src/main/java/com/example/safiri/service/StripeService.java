@@ -59,7 +59,7 @@ public class StripeService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("https://2400-41-89-10-241.ngrok-free.app/home")
+                .setSuccessUrl("https://2400-41-89-10-241.ngrok-free.app/transactionsReceipt")
                 .setCancelUrl("https://2400-41-89-10-241.ngrok-free.app/home")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
