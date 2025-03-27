@@ -1,102 +1,130 @@
 .transactions-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(20, 90, 50, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center align the title */
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(20, 90, 50, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center align the title */
 }
 
 .title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #145A32; /* Green */
-    text-align: center;
-    margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #004b23;
+  margin-bottom: 20px;
+}
+
+.filters-card {
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
 }
 
 .filters {
-    display: flex;
-    width: 100%;
-    justify-content: flex-end; /* Align filter to the left */
-    margin-bottom: 10px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.date-range {
+  min-width: 250px;
 }
 
 .table-card {
-    width: 100%;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  width: 100%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .success {
-    color: green;
-    font-weight: bold;
+  color: #52c41a;
 }
 
 .failed {
-    color: red;
-    font-weight: bold;
+  color: #f5222d;
 }
 
 .pending {
-    color: orange;
-    font-weight: bold;
+  color: #faad14;
+}
+
+.unknown {
+  color: #8c8c8c;
 }
 
 .no-transactions {
-    text-align: center;
-    padding: 20px;
+  text-align: center;
+  padding: 20px;
 }
 
 .no-transactions p {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #004B23;
+  margin-top: 10px;
+  font-size: 16px;
+  color: #004b23;
 }
 
 .no-transactions svg {
-    display: block;
-    margin: 0 auto;
-    color: #C9A227;
+  display: block;
+  margin: 0 auto;
+  color: #c9a227;
 }
 
 .loading,
 .error {
-    text-align: center;
-    font-size: 16px;
-    margin: 10px 0;
-    color: #004B23;
+  text-align: center;
+  font-size: 16px;
+  margin: 10px 0;
+  color: #004b23;
 }
 
 /* Ant Design Table Customizations */
 .ant-table-thead > tr > th {
-    background-color: #004B23 !important;
-    color: #C9A227 !important;
+  background-color: #004b23 !important;
+  color: #c9a227 !important;
 }
 
 .ant-table-row:hover {
-    background-color: rgba(201, 162, 39, 0.1) !important;
+  background-color: rgba(201, 162, 39, 0.1) !important;
 }
 
 .ant-pagination-item-active {
-    background-color: #C9A227;
-    border-color: #004B23;
+  background-color: #c9a227;
+  border-color: #004b23;
 }
 
 .ant-pagination-item:hover {
-    border-color: #C9A227;
+  border-color: #c9a227;
 }
 
 .ant-input,
 .ant-select .ant-select-selector {
-    border-color: #004B23;
+  border-color: #004b23;
 }
 
 .ant-input:focus,
 .ant-select:focus,
 .ant-input:hover,
 .ant-select:hover {
-    border-color: #C9A227 !important;
-    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2) !important;
+  border-color: #c9a227 !important;
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2) !important;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input,
+  .date-range,
+  .ant-btn {
+    width: 100%;
+  }
 }
