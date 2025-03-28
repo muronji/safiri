@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { useAuth } from "../redux/AuthContext";
 import { fetchUserTransactions } from "../apicalls";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
