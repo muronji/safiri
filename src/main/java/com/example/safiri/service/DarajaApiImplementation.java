@@ -31,6 +31,7 @@ public class DarajaApiImplementation implements DarajaApi {
     private final ObjectMapper objectMapper;
     private final WalletRepository walletRepository;
     private final TransactionService transactionService;
+    private final CurrencyService currencyService;
 
     private static final MediaType JSON_MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
     private static final String AUTHORIZATION_HEADER_STRING = "Authorization";
@@ -67,31 +68,34 @@ public class DarajaApiImplementation implements DarajaApi {
     public B2CSyncResponse performB2CTransaction(Long customerId, InternalB2CRequest internalB2CRequest) {
         log.info("Incoming InternalB2CRequest from Customer ID {}: {}", customerId, HelperUtility.toJson(internalB2CRequest));
 
-        BigDecimal withdrawalAmount;
+        BigDecimal usdAmount;
         try {
-            withdrawalAmount = new BigDecimal(internalB2CRequest.getAmount());
+            usdAmount = new BigDecimal(internalB2CRequest.getAmount());
         } catch (NumberFormatException e) {
             log.error("Invalid withdrawal amount for Customer ID {}: {}", customerId, internalB2CRequest.getAmount());
             throw new MpesaTransactionException("Invalid withdrawal amount format");
         }
+
+        // Convert USD to KES for M-Pesa transaction
+        BigDecimal kesAmount = currencyService.convertUsdToKes(usdAmount);
 
         // Ensure customer exists and has sufficient balance
         User user = walletRepository.findByUser_Id(customerId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found for Customer ID: " + customerId))
                 .getUser();
 
-        if (user.getWalletBalance().compareTo(withdrawalAmount) < 0) {
+        if (user.getWalletBalance().compareTo(usdAmount) < 0) {
             log.error("Insufficient balance for Customer ID {}: Available {}, Required {}",
-                    customerId, user.getWalletBalance(), withdrawalAmount);
+                    customerId, user.getWalletBalance(), usdAmount);
             throw new MpesaTransactionException("Insufficient balance for withdrawal");
         }
 
         log.info("Sufficient balance, proceeding with B2C transaction...");
 
-        // Create a pending transaction
+        // Create a pending transaction with USD amount
         String txRef = HelperUtility.generateOriginatorConversationID();
         Transaction transaction = transactionService.createPendingTransaction(
-                customerId, withdrawalAmount, txRef, Transaction.TransactionType.WITHDRAWAL
+                customerId, usdAmount, txRef, Transaction.TransactionType.WITHDRAWAL
         );
 
         // Get M-Pesa Access Token
@@ -101,11 +105,11 @@ public class DarajaApiImplementation implements DarajaApi {
             throw new MpesaTransactionException("Failed to retrieve access token");
         }
 
-        // Create B2C request
+        // Create B2C request with KES amount
         B2CRequest b2CTransactionRequest = new B2CRequest();
         b2CTransactionRequest.setOriginatorConversationID(txRef);
         b2CTransactionRequest.setCommandID("BusinessPayment");
-        b2CTransactionRequest.setAmount(withdrawalAmount.toString());
+        b2CTransactionRequest.setAmount(kesAmount.toString());
         b2CTransactionRequest.setPartyB(internalB2CRequest.getPartyB());
         b2CTransactionRequest.setRemarks("Wallet Transfer to " + internalB2CRequest.getPartyB());
         b2CTransactionRequest.setOccassion("Safiri Wallet Payout");

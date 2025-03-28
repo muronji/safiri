@@ -10,6 +10,11 @@ import {useProtectedRoute} from "../redux/UseProtectedRoutes";
 const MENU_CONFIG = {
     ADMIN: [
         {
+            title: 'Dashboard',
+            icon: <i className="ri-dashboard-3-line"></i>,
+            path: '/dashboard'
+        },
+        {
             title: 'Customer Reports',
             icon: <i className="ri-user-line"></i>,
             path: '/customersReports'

@@ -73,10 +73,25 @@ public class CustomerService implements UserDetailsService {
     }
 
     public List<CustomerResponse> getAllCustomers() {
-        return userRepository.findAll()
-                .stream()
-                .map(customerMapper::toCustomerResponse)
+        log.info("Fetching all customers from database");
+        List<User> users = userRepository.findAll();
+        log.info("Found {} users in database", users.size());
+        
+        List<CustomerResponse> customers = users.stream()
+                .map(user -> {
+                    log.debug("Mapping user: id={}, email={}, firstName={}, lastName={}, phoneNumber={}, walletBalance={}",
+                            user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), 
+                            user.getPhoneNumber(), user.getWalletBalance());
+                    CustomerResponse response = customerMapper.toCustomerResponse(user);
+                    log.debug("Mapped to CustomerResponse: id={}, email={}, firstName={}, lastName={}, phoneNumber={}, walletBalance={}",
+                            response.getId(), response.getEmail(), response.getFirstName(), response.getLastName(),
+                            response.getPhoneNumber(), response.getWalletBalance());
+                    return response;
+                })
                 .collect(Collectors.toList());
+        
+        log.info("Successfully mapped {} users to CustomerResponse objects", customers.size());
+        return customers;
     }
 
     public CustomerResponse updateCustomerByEmail(String email, CustomerRequest customerRequest) {

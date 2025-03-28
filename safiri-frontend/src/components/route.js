@@ -6,6 +6,7 @@ import LoadWalletModal from "../pages/home/LoadWalletModal";
 import {TransactionsReport} from "../pages/admin/TransactionsReport";
 import CustomersReport from "../pages/admin/CustomersReport";
 import TransactionsReceipt from "../pages/TransactionsReceipt";
+import Dashboard from "../pages/admin/Dashboard";
 
 const routes = [
     { path: "/home", element: <HomePage /> },
@@ -15,7 +16,8 @@ const routes = [
     {path: "/load-wallet", element: <LoadWalletModal />},
     {path: "/customersReports", element: <CustomersReport />},
     {path: "/transactionsReport", element: <TransactionsReport />},
-    {path: "/transactionsReceipt", element: <TransactionsReceipt />}
+    {path: "/transactionsReceipt", element: <TransactionsReceipt />},
+    {path: "/dashboard", element: <Dashboard />},
 ];
 
 export default routes;

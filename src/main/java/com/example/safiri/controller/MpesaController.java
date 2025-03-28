@@ -4,6 +4,7 @@ import com.example.safiri.dto.*;
 import com.example.safiri.model.User;
 import com.example.safiri.repository.UserRepository;
 import com.example.safiri.service.DarajaApi;
+import com.example.safiri.service.MoneyTransferService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class MpesaController {
     private final AcknowledgeResponse acknowledgeResponse;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
+    private final MoneyTransferService moneyTransferService;
 
     @GetMapping("/access-token")
     public ResponseEntity<AccessTokenResponse> getAccessToken() {
@@ -56,11 +58,8 @@ public class MpesaController {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
-        Long userId = user.getId();
-        log.info("Authenticated user: {} (ID: {})", userEmail, userId);
-        log.info("Received B2C Transaction Request: {}", request);
-
-        B2CSyncResponse response = darajaApi.performB2CTransaction(userId, request);
+        B2CSyncResponse response = moneyTransferService.transferMoney(user.getId(), request);
         return ResponseEntity.ok(response);
     }
+
 }

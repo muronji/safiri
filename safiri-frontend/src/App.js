@@ -19,6 +19,7 @@ import LoadWalletModal from "./pages/home/LoadWalletModal";
 import {TransactionsReport} from "./pages/admin/TransactionsReport";
 import CustomersReport from "./pages/admin/CustomersReport";
 import TransactionsReceipt from "./pages/TransactionsReceipt";
+import Dashboard from "./pages/admin/Dashboard";
 
 // Create a separate component that uses useAuth
 const AppRoutes = () => {
@@ -49,6 +50,7 @@ const AppRoutes = () => {
                         <Route path="/customersReports" element={<CustomersReport />} />
                         <Route path="/transactionsReport" element={<TransactionsReport />} />
                         <Route path="/transactionsReceipt" element={<TransactionsReceipt />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
                     </Route>
                 </Route>
 

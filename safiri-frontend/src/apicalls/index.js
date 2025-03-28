@@ -102,7 +102,6 @@ export const registerUser = async (formData) => {
  * Perform a B2C transaction
  */
 export const performB2CTransaction = async (values) => {
-    // Try with capital letters if that's what backend expects
     const transactionData = {
         Amount: values.amount,
         PartyB: values.receiver
@@ -218,3 +217,29 @@ export const fetchTransactionsReceipt = async () => {
         throw error;
     }
 }
+
+/**
+ * Fetch dashboard statistics
+ */
+export const fetchDashboardStatistics = async () => {
+    try {
+        const { data } = await apiClient.get("/dashboard/statistics", {
+            withCredentials: true,
+        });
+        return data;
+    } catch (error) {
+        console.error("Error fetching dashboard statistics:", error.response?.data || error.message);
+        return {
+            totalCustomers: 0,
+            totalDepositTransactions: 0,
+            totalDepositAmount: 0,
+            totalWithdrawalTransactions: 0,
+            totalWithdrawalAmount: 0,
+            successfulTransactions: 0,
+            failedTransactions: 0,
+            pendingTransactions: 0,
+            averageTransactionAmount: 0,
+            mostActiveTransactionPeriod: null
+        };
+    }
+};

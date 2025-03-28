@@ -52,7 +52,9 @@ export default function CustomersReport() {
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
-        customer.email.toLowerCase().includes(search.toLowerCase()) ||
+        (customer.email
+            ? customer.email.toLowerCase().includes(search.toLowerCase())
+            : false) ||
         (customer.identifier
             ? customer.identifier.toLowerCase().includes(search.toLowerCase())
             : false);
