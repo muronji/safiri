@@ -16,7 +16,7 @@ export const getExchangeRate = async () => {
   } catch (error) {
     console.error("Error fetching exchange rate:", error);
     // Fallback rate in case API fails
-    return 150; // 1 USD = 150 KES (approximate)
+    return 130; // 1 USD = 130 KES (approximate)
   }
 };
 

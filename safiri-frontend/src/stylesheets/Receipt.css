@@ -1,81 +1,83 @@
 .receipt-container {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 0; /* Remove padding to allow full-width header */
-    background-color: white; /* White background */
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid #C9A227; /* Gold border */
-    overflow: hidden; /* Prevent content from overflowing */
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 0; /* Remove padding to allow full-width header */
+  background-color: white; /* White background */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #c9a227; /* Gold border */
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
 /* Header Styling */
 .receipt-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #004B23; /* Dark Green */
-    padding: 15px;
-    width: 100%; /* Ensures full width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #004b23; /* Dark Green */
+  padding: 15px;
+  width: 100%; /* Ensures full width */
 }
 
 .safiri-logo {
-    width: 40px; /* Adjust size as needed */
-    height: auto;
-    margin-right: 10px;
-    filter: invert(1); /* Invert logo color */
+  width: 40px; /* Adjust size as needed */
+  height: auto;
+  margin-right: 10px;
+  filter: invert(1); /* Invert logo color */
 }
 
 .safiri-title {
-    color: white !important;
-    font-size: 1.5rem;
-    font-weight: bold;
+  color: white !important;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 /* Content Styling */
 .receipt-content {
-    padding: 20px; /* Adds padding inside the content */
-    width: 100%; /* Ensures full width */
+  padding: 20px; /* Adds padding inside the content */
+  width: 100%; /* Ensures full width */
 }
 
 /* Title Styling */
 .receipt-title {
-    text-align: center;
-    color: #004B23 !important; /* Dark Green */
-    font-weight: bold;
+  text-align: center;
+  color: #004b23 !important; /* Dark Green */
+  font-weight: bold;
 }
 
 /* Details Styling */
 .receipt-details {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    color: black; /* Black text */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: black; /* Black text */
 }
 
 .label {
-    font-weight: bold;
-    color: #004B23; /* Dark Green */
+  font-weight: bold;
+  color: #004b23; /* Dark Green */
 }
 
 /* Footer Styling */
 .receipt-footer {
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
-    width: 100%; /* Ensures full width */
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  width: 100%; /* Ensures full width */
 }
 
 /* Button Styling */
 .download-button {
-    background-color: #004B23 !important; /* Dark Green */
-    color: white !important; /* White text */
-    font-weight: bold;
-    border-radius: 8px;
-    border: none;
-    padding: 10px 15px;
+  background-color: #004b23 !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  padding: 10px 15px;
+  transition: all 0.3s ease-in-out;
 }
 
 .download-button:hover {
-    color: #c9a227 !important; /* Black text on hover */
+  background-color: #003b1a !important;
+  color: #c9a227 !important;
 }

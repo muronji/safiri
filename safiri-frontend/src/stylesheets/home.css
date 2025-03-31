@@ -51,17 +51,19 @@
 }
 
 .card button {
-  background-color: #007bff;
+  background-color: #004b23;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.3s ease-in-out;
 }
 
 .card button:hover {
-  background-color: #0056b3;
+  background-color: #003b1a;
+  color: #c9a227;
 }
 
 /* Responsive */

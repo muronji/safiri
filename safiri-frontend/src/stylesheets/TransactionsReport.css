@@ -37,17 +37,17 @@
 }
 
 .success {
-  color: green;
+  color: #52c41a;
   font-weight: bold;
 }
 
 .failed {
-  color: red;
+  color: #f5222d;
   font-weight: bold;
 }
 
 .pending {
-  color: orange;
+  color: #faad14;
   font-weight: bold;
 }
 

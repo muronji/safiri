@@ -52,21 +52,21 @@ public class StripeService {
         Transaction transaction = new Transaction();
         transaction.setUser(user);
         transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
-        transaction.setAmount(BigDecimal.valueOf(paymentRequest.getAmount() / 100.0));
+        transaction.setAmount(BigDecimal.valueOf(paymentRequest.getAmount()));
         transaction.setTransactionStatus(Transaction.TransactionStatus.PENDING);
         transaction.setTransactionDate(LocalDateTime.now());
         transactionRepository.save(transaction);
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("https://8d07-196-207-172-170.ngrok-free.app/transactionsReceipt")
-                .setCancelUrl("https://8d07-196-207-172-170.ngrok-free.app/home")
+                .setSuccessUrl("https://9bd4-196-207-172-170.ngrok-free.app/transactionsReceipt")
+                .setCancelUrl("https://9bd4-196-207-172-170.ngrok-free.app/home")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
                                 .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("USD")
-                                        .setUnitAmount(paymentRequest.getAmount())
+                                        .setUnitAmount(paymentRequest.getAmount() * 100)
                                         .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                 .setName("Wallet Funding")
                                                 .build())

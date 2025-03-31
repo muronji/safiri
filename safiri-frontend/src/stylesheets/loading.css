@@ -1,0 +1,71 @@
+/* Loading Spinner Container */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Custom Spinner */
+.custom-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #c9a227;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Loading Text */
+.loading-text {
+  color: #004b23;
+  font-size: 16px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Small Spinner Variant */
+.spinner-sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+/* Medium Spinner Variant */
+.spinner-md {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+}
+
+/* Large Spinner Variant */
+.spinner-lg {
+  width: 50px;
+  height: 50px;
+  border-width: 5px;
+}

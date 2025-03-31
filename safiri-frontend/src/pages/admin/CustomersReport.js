@@ -18,6 +18,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import moment from "moment";
 import logo from "../../images/international.png";
+import Loading from "../../components/Loading";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -52,36 +53,36 @@ export default function CustomersReport() {
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
-        (customer.email
-            ? customer.email.toLowerCase().includes(search.toLowerCase())
-            : false) ||
-        (customer.identifier
-            ? customer.identifier.toLowerCase().includes(search.toLowerCase())
-            : false);
+      (customer.email
+        ? customer.email.toLowerCase().includes(search.toLowerCase())
+        : false) ||
+      (customer.identifier
+        ? customer.identifier.toLowerCase().includes(search.toLowerCase())
+        : false);
 
     const matchesIdentifierType = filter
-        ? customer.identifierType
-            ? customer.identifierType === filter
-            : false
-        : true;
+      ? customer.identifierType
+        ? customer.identifierType === filter
+        : false
+      : true;
 
     const matchesBalance =
-        (!balanceRange.min ||
-            customer.walletBalance >= parseFloat(balanceRange.min)) &&
-        (!balanceRange.max ||
-            customer.walletBalance <= parseFloat(balanceRange.max));
+      (!balanceRange.min ||
+        customer.walletBalance >= parseFloat(balanceRange.min)) &&
+      (!balanceRange.max ||
+        customer.walletBalance <= parseFloat(balanceRange.max));
 
     const matchesDate =
-        !dateRange ||
-        moment(customer.createdAt).isBetween(
-            dateRange[0],
-            dateRange[1],
-            "day",
-            "[]"
-        );
+      !dateRange ||
+      moment(customer.createdAt).isBetween(
+        dateRange[0],
+        dateRange[1],
+        "day",
+        "[]"
+      );
 
     return (
-        matchesSearch && matchesIdentifierType && matchesBalance && matchesDate
+      matchesSearch && matchesIdentifierType && matchesBalance && matchesDate
     );
   });
 
@@ -110,9 +111,9 @@ export default function CustomersReport() {
       render: (type) => {
         if (!type) return "-";
         return type
-            .split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ");
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
       },
     },
     {
@@ -127,10 +128,10 @@ export default function CustomersReport() {
       key: "walletBalance",
       sorter: (a, b) => a.walletBalance - b.walletBalance,
       render: (balance) =>
-          `$${balance.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`,
+        `$${balance.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`,
       align: "right",
     },
   ];
@@ -148,7 +149,7 @@ export default function CustomersReport() {
 
     // Add centered logo and Safiri text
     const imgWidth = 20,
-        imgHeight = 20;
+      imgHeight = 20;
     const imgX = 20;
     const imgY = 10;
 
@@ -196,11 +197,11 @@ export default function CustomersReport() {
       if (dateRange) {
         doc.setFontSize(10);
         doc.text(
-            `Date Range: ${dateRange[0].format(
-                "MM/DD/YYYY"
-            )} - ${dateRange[1].format("MM/DD/YYYY")}`,
-            15,
-            yPos
+          `Date Range: ${dateRange[0].format(
+            "MM/DD/YYYY"
+          )} - ${dateRange[1].format("MM/DD/YYYY")}`,
+          15,
+          yPos
         );
         yPos += 5;
       }
@@ -214,11 +215,11 @@ export default function CustomersReport() {
           customer.id,
           customer.email,
           customer.identifierType
-              ? customer.identifierType
-                  .split("_")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ")
-              : "-",
+            ? customer.identifierType
+                .split("_")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ")
+            : "-",
           customer.identifier || "-",
           `$${customer.walletBalance.toFixed(2)}`,
         ]),
@@ -236,10 +237,10 @@ export default function CustomersReport() {
       doc.setTextColor(...primaryGreen);
       doc.setFontSize(8);
       doc.text(
-          `Generated on: ${moment().format("MMMM D, YYYY, h:mm A")}`,
-          pageWidth / 2,
-          pageHeight - 10,
-          { align: "center" }
+        `Generated on: ${moment().format("MMMM D, YYYY, h:mm A")}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: "center" }
       );
 
       // Save the PDF
@@ -251,81 +252,86 @@ export default function CustomersReport() {
   };
 
   return (
-      <Card className="customer-reports-container">
-        <Title level={2} className="title">
-          Customer Reports
-        </Title>
+    <Card className="customer-reports-container">
+      <Title level={2} className="title">
+        Customer Reports
+      </Title>
 
-        <Card className="filters-card" bordered={false}>
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <div className="filters">
-              <Input.Search
-                  placeholder="Search by Email or Identifier..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="search-input"
-                  allowClear
-              />
-              <Select
-                  placeholder="Filter by Identifier Type"
-                  onChange={setFilter}
-                  allowClear
-                  className="filter-select"
-              >
-                <Option value="passport">Passport</Option>
-                <Option value="national_id">National ID</Option>
-              </Select>
-              <RangePicker
-                  onChange={(dates) => setDateRange(dates)}
-                  className="date-range"
-              />
-            </div>
-            <div className="balance-filter">
-              <Input
-                  placeholder="Min Balance"
-                  type="number"
-                  onChange={(e) =>
-                      setBalanceRange((prev) => ({ ...prev, min: e.target.value }))
-                  }
-                  style={{ width: 150 }}
-              />
-              <span style={{ margin: "0 8px" }}>to</span>
-              <Input
-                  placeholder="Max Balance"
-                  type="number"
-                  onChange={(e) =>
-                      setBalanceRange((prev) => ({ ...prev, max: e.target.value }))
-                  }
-                  style={{ width: 150 }}
-              />
-            </div>
-          </Space>
-        </Card>
+      <Card className="filters-card" bordered={false}>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <div className="filters">
+            <Input.Search
+              placeholder="Search by Email or Identifier..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+              allowClear
+            />
+            <Select
+              placeholder="Filter by Identifier Type"
+              onChange={setFilter}
+              allowClear
+              className="filter-select"
+            >
+              <Option value="passport">Passport</Option>
+              <Option value="national_id">National ID</Option>
+            </Select>
+            <RangePicker
+              onChange={(dates) => setDateRange(dates)}
+              className="date-range"
+            />
+          </div>
+          <div className="balance-filter">
+            <Input
+              placeholder="Min Balance"
+              type="number"
+              onChange={(e) =>
+                setBalanceRange((prev) => ({ ...prev, min: e.target.value }))
+              }
+              style={{ width: 150 }}
+            />
+            <span style={{ margin: "0 8px" }}>to</span>
+            <Input
+              placeholder="Max Balance"
+              type="number"
+              onChange={(e) =>
+                setBalanceRange((prev) => ({ ...prev, max: e.target.value }))
+              }
+              style={{ width: 150 }}
+            />
+          </div>
+        </Space>
+      </Card>
 
-        <div className="table-actions">
-          <Button
-              type="primary"
-              icon={<DownloadOutlined />}
-              onClick={downloadReport}
-              disabled={filteredCustomers.length === 0}
-          >
-            Download Report
-          </Button>
-        </div>
+      <div className="table-actions">
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
+          onClick={downloadReport}
+          disabled={filteredCustomers.length === 0}
+        >
+          Download Report
+        </Button>
+      </div>
 
-        <Table
+      <Card className="table-card">
+        {loading ? (
+          <Loading text="Loading customer reports..." />
+        ) : (
+          <Table
             dataSource={filteredCustomers}
             columns={columns}
             rowKey="id"
-            loading={loading}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
               showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} customers`,
+                `${range[0]}-${range[1]} of ${total} customers`,
             }}
             scroll={{ x: "max-content" }}
-        />
+          />
+        )}
       </Card>
+    </Card>
   );
 }

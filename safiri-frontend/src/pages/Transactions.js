@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../redux/AuthContext";
 import { fetchUserTransactions } from "../apicalls";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
@@ -9,6 +9,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import moment from "moment";
 import logo from "../images/international.png";
+import Loading from "../components/Loading";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -65,21 +66,21 @@ const generatePDFFilters = (doc, yPos, filters, totalResults) => {
     }
     if (statusFilter) {
       doc.text(
-          `Status: ${
-              statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)
-          }`,
-          20,
-          yPos
+        `Status: ${
+          statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)
+        }`,
+        20,
+        yPos
       );
       yPos += 5;
     }
     if (dateRange) {
       doc.text(
-          `Date Range: ${dateRange[0].format(
-              "MM/DD/YYYY"
-          )} - ${dateRange[1].format("MM/DD/YYYY")}`,
-          20,
-          yPos
+        `Date Range: ${dateRange[0].format(
+          "MM/DD/YYYY"
+        )} - ${dateRange[1].format("MM/DD/YYYY")}`,
+        20,
+        yPos
       );
       yPos += 5;
     }
@@ -120,20 +121,20 @@ const Transactions = () => {
 
   const filteredTransactions = transactions.filter((tx) => {
     const matchesSearch = Object.values(tx).some((value) =>
-        String(value).toLowerCase().includes(searchText.toLowerCase())
+      String(value).toLowerCase().includes(searchText.toLowerCase())
     );
 
     const matchesStatus = statusFilter
-        ? tx.transactionStatus?.toLowerCase() === statusFilter.toLowerCase()
-        : true;
+      ? tx.transactionStatus?.toLowerCase() === statusFilter.toLowerCase()
+      : true;
 
     const matchesDate = !dateRange
-        ? true
-        : moment(tx.transactionDate).isBetween(
-            dateRange[0],
-            dateRange[1],
-            "day",
-            "[]"
+      ? true
+      : moment(tx.transactionDate).isBetween(
+          dateRange[0],
+          dateRange[1],
+          "day",
+          "[]"
         );
 
     return matchesSearch && matchesStatus && matchesDate;
@@ -146,7 +147,7 @@ const Transactions = () => {
       key: "transactionDate",
       render: (date) => (date ? new Date(date).toLocaleString() : "N/A"),
       sorter: (a, b) =>
-          new Date(a.transactionDate) - new Date(b.transactionDate),
+        new Date(a.transactionDate) - new Date(b.transactionDate),
     },
     {
       title: "Tx Ref",
@@ -159,7 +160,7 @@ const Transactions = () => {
       dataIndex: "amount",
       key: "amount",
       render: (amount) =>
-          `$${typeof amount === "number" ? amount.toFixed(2) : "0.00"}`,
+        `$${typeof amount === "number" ? amount.toFixed(2) : "0.00"}`,
       sorter: (a, b) => a.amount - b.amount,
     },
     {
@@ -173,7 +174,7 @@ const Transactions = () => {
       dataIndex: "transactionStatus",
       key: "transactionStatus",
       render: (status) => (
-          <span className={(status || "unknown").toLowerCase()}>
+        <span className={(status || "unknown").toLowerCase()}>
           {status || "Unknown"}
         </span>
       ),
@@ -189,7 +190,7 @@ const Transactions = () => {
 
     // Setup dimensions
     const imgWidth = 20,
-        imgHeight = 20;
+      imgHeight = 20;
     const pageWidth = doc.internal.pageSize.width;
     const imgX = (pageWidth - imgWidth) / 2 - 30;
     const imgY = 5;
@@ -209,10 +210,10 @@ const Transactions = () => {
 
       // Add filters
       let yPos = generatePDFFilters(
-          doc,
-          45,
-          { searchText, statusFilter, dateRange },
-          filteredTransactions.length
+        doc,
+        45,
+        { searchText, statusFilter, dateRange },
+        filteredTransactions.length
       );
 
       // Add table
@@ -239,10 +240,10 @@ const Transactions = () => {
       doc.setTextColor(...COLORS.primaryGreen);
       doc.setFontSize(8);
       doc.text(
-          `Generated on: ${moment().format("MMMM D, YYYY, h:mm A")}`,
-          pageWidth / 2,
-          pageHeight - 10,
-          { align: "center" }
+        `Generated on: ${moment().format("MMMM D, YYYY, h:mm A")}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: "center" }
       );
 
       doc.save("my-transactions.pdf");
@@ -252,67 +253,67 @@ const Transactions = () => {
   };
 
   return (
-      <div className="transactions-container">
-        <h1 className="title">Transactions</h1>
-        <Card className="filters-card" bordered={false}>
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <div className="filters">
-              <Input
-                  prefix={<SearchOutlined />}
-                  placeholder="Search transactions"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="search-input"
-                  allowClear
-              />
-              <Select
-                  placeholder="Filter by Status"
-                  onChange={(value) => setStatusFilter(value)}
-                  value={statusFilter}
-                  allowClear
-                  className="status-filter"
-              >
-                {STATUS_OPTIONS.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.text}
-                    </Option>
-                ))}
-              </Select>
-              <RangePicker
-                  onChange={(dates) => setDateRange(dates)}
-                  className="date-range"
-              />
-              <Button
-                  type="primary"
-                  icon={<DownloadOutlined />}
-                  onClick={downloadReport}
-                  disabled={filteredTransactions.length === 0}
-              >
-                Download Report
-              </Button>
-            </div>
-          </Space>
-        </Card>
+    <div className="transactions-container">
+      <h1 className="title">Transactions</h1>
+      <Card className="filters-card" bordered={false}>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <div className="filters">
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search transactions"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="search-input"
+              allowClear
+            />
+            <Select
+              placeholder="Filter by Status"
+              onChange={(value) => setStatusFilter(value)}
+              value={statusFilter}
+              allowClear
+              className="status-filter"
+            >
+              {STATUS_OPTIONS.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.text}
+                </Option>
+              ))}
+            </Select>
+            <RangePicker
+              onChange={(dates) => setDateRange(dates)}
+              className="date-range"
+            />
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={downloadReport}
+              disabled={filteredTransactions.length === 0}
+            >
+              Download Report
+            </Button>
+          </div>
+        </Space>
+      </Card>
 
-        <Card className="table-card">
-          {loading && <p className="loading">Loading transactions...</p>}
-          {error && <p className="error">{error}</p>}
-          {!loading && !error && (
-              <Table
-                  dataSource={filteredTransactions}
-                  columns={columns}
-                  rowKey="txRef"
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total, range) =>
-                        `${range[0]}-${range[1]} of ${total} transactions`,
-                  }}
-                  scroll={{ x: "100%" }}
-              />
-          )}
-        </Card>
-      </div>
+      <Card className="table-card">
+        {loading && <Loading text="Loading transactions..." />}
+        {error && <p className="error">{error}</p>}
+        {!loading && !error && (
+          <Table
+            dataSource={filteredTransactions}
+            columns={columns}
+            rowKey="txRef"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} transactions`,
+            }}
+            scroll={{ x: "100%" }}
+          />
+        )}
+      </Card>
+    </div>
   );
 };
 

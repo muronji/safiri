@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Card, Button, Typography, Spin, Alert } from "antd";
+import { Card, Button, Typography, Alert } from "antd";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable"; // Change the import to this
 import "../stylesheets/Receipt.css";
 import { fetchTransactionsReceipt } from "../apicalls";
 import logo from "./../images/international.png";
+import Loading from "../components/Loading";
 
 const { Title, Text } = Typography;
 
@@ -81,7 +82,7 @@ const TransactionsReceipt = () => {
 
       // Add the white logo to PDF
       const imgWidth = 20,
-          imgHeight = 20;
+        imgHeight = 20;
       const imgX = 20;
       const imgY = 10;
       doc.addImage(canvas.toDataURL(), "PNG", imgX, imgY, imgWidth, imgHeight);
@@ -173,7 +174,7 @@ const TransactionsReceipt = () => {
   };
 
   if (loading) {
-    return <Spin tip="Loading receipt..." className="loading-spinner" />;
+    return <Loading text="Loading receipt..." />;
   }
 
   if (error) {
@@ -182,79 +183,79 @@ const TransactionsReceipt = () => {
 
   if (!transaction) {
     return (
-        <Text className="no-transaction">No transaction data available</Text>
+      <Text className="no-transaction">No transaction data available</Text>
     );
   }
 
   return (
-      <Card className="receipt-container">
-        <div className="receipt-header">
-          <img src={logo} alt="Safiri Logo" className="safiri-logo" />
-          <Title level={2} className="safiri-title">
-            Safiri
-          </Title>
-        </div>
-
-        <Title level={3} className="receipt-title">
-          Transaction Receipt
+    <Card className="receipt-container">
+      <div className="receipt-header">
+        <img src={logo} alt="Safiri Logo" className="safiri-logo" />
+        <Title level={2} className="safiri-title">
+          Safiri
         </Title>
+      </div>
 
-        <div className="receipt-details">
-          <Text>
-            <span className="label">Transaction ID:</span>{" "}
-            {transaction.transactionId}
-          </Text>
-          <Text>
-            <span className="label">Reference:</span>{" "}
-            {transaction.transactionReference}
-          </Text>
-          <Text>
-            <span className="label">Amount:</span> $
-            {transaction.amount.toFixed(2)}
-          </Text>
-          <Text>
-            <span className="label">Type:</span> {transaction.transactionType}
-          </Text>
-          <Text>
-            <span className="label">Status:</span> {transaction.transactionStatus}
-          </Text>
-          <Text>
-            <span className="label">Date:</span>{" "}
-            {transaction.formattedTransactionDate}
-          </Text>
-          <Text>
-            <span className="label">Previous Balance:</span> $
-            {transaction.previousBalance.toFixed(2)}
-          </Text>
-          <Text>
-            <span className="label">Current Balance:</span> $
-            {transaction.currentBalance.toFixed(2)}
-          </Text>
+      <Title level={3} className="receipt-title">
+        Transaction Receipt
+      </Title>
 
-          {receiver && (
-              <Text>
-                <span className="label">Receiver:</span> {receiver}
-              </Text>
-          )}
+      <div className="receipt-details">
+        <Text>
+          <span className="label">Transaction ID:</span>{" "}
+          {transaction.transactionId}
+        </Text>
+        <Text>
+          <span className="label">Reference:</span>{" "}
+          {transaction.transactionReference}
+        </Text>
+        <Text>
+          <span className="label">Amount:</span> $
+          {transaction.amount.toFixed(2)}
+        </Text>
+        <Text>
+          <span className="label">Type:</span> {transaction.transactionType}
+        </Text>
+        <Text>
+          <span className="label">Status:</span> {transaction.transactionStatus}
+        </Text>
+        <Text>
+          <span className="label">Date:</span>{" "}
+          {transaction.formattedTransactionDate}
+        </Text>
+        <Text>
+          <span className="label">Previous Balance:</span> $
+          {transaction.previousBalance.toFixed(2)}
+        </Text>
+        <Text>
+          <span className="label">Current Balance:</span> $
+          {transaction.currentBalance.toFixed(2)}
+        </Text>
 
-          {transaction.additionalDetails && (
-              <Text>
-                <span className="label">Details:</span>{" "}
-                {transaction.additionalDetails}
-              </Text>
-          )}
-        </div>
+        {receiver && (
+          <Text>
+            <span className="label">Receiver:</span> {receiver}
+          </Text>
+        )}
 
-        <div className="receipt-footer">
-          <Button
-              type="primary"
-              className="download-button"
-              onClick={downloadPDF}
-          >
-            Download Receipt
-          </Button>
-        </div>
-      </Card>
+        {transaction.additionalDetails && (
+          <Text>
+            <span className="label">Details:</span>{" "}
+            {transaction.additionalDetails}
+          </Text>
+        )}
+      </div>
+
+      <div className="receipt-footer">
+        <Button
+          type="primary"
+          className="download-button"
+          onClick={downloadPDF}
+        >
+          Download Receipt
+        </Button>
+      </div>
+    </Card>
   );
 };
 

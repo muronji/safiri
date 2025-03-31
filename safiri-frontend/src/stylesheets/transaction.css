@@ -105,7 +105,9 @@
 
 .ant-input,
 .ant-select .ant-select-selector {
-  border-color: #004b23;
+  border-color: #393838;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
 }
 
 .ant-input:focus,
@@ -113,7 +115,35 @@
 .ant-input:hover,
 .ant-select:hover {
   border-color: #c9a227 !important;
-  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2) !important;
+  box-shadow: 0 0 5px rgba(201, 162, 39, 0.3) !important;
+}
+
+.ant-btn {
+  transition: all 0.3s ease-in-out;
+}
+
+.ant-btn-primary {
+  background-color: #004b23 !important;
+  border-color: #004b23 !important;
+  color: white !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #004b23 !important;
+  border-color: #004b23 !important;
+  color: #c9a227 !important;
+}
+
+.ant-btn:not(.ant-btn-primary) {
+  background-color: #004b23 !important;
+  border-color: #004b23 !important;
+  color: white !important;
+}
+
+.ant-btn:not(.ant-btn-primary):hover {
+  background-color: #004b23 !important;
+  border-color: #004b23 !important;
+  color: #c9a227 !important;
 }
 
 @media (max-width: 768px) {

@@ -9,19 +9,19 @@ body {
 h1 {
   font-size: 24px;
   font-weight: bold;
-  color: #004B23; /* Deep Green */
+  color: #004b23; /* Deep Green */
 }
 
 h2 {
   font-size: 20px;
   font-weight: bold;
-  color: #005A30;
+  color: #005a30;
 }
 
 h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #007A40;
+  color: #007a40;
 }
 
 /* Paragraphs */
@@ -39,21 +39,29 @@ a {
 
 a:hover {
   text-decoration: underline;
-  color: #004B23;
+  color: #004b23;
 }
 
 /* Button Styling */
 button {
-  background-color: #004B23;
+  background-color: #004b23;
   color: white;
   font-size: 16px;
   font-weight: bold;
   padding: 10px 15px;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-  background-color: #006D34;
+  background-color: #003b1a;
+  color: #c9a227;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
 }

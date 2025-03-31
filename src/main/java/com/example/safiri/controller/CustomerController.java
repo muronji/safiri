@@ -24,11 +24,14 @@ import java.util.List;
 @Slf4j
 public class CustomerController {
     private final CustomerService customerService;
+    private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
 
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, UserRepository userRepository) {
+        super();
         this.customerService = customerService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/create")
@@ -74,16 +77,24 @@ public class CustomerController {
     @PutMapping("update/{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable("id") Long customerId, @RequestBody CustomerRequest customerRequest) {
         try {
-            // Get the authenticated user's email from the SecurityContext (set by JwtAuthenticationFilter)
+            // Get the authenticated user's email from the SecurityContext
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String email = authentication.getName(); // This will be the user's email from the JWT
+            String email = authentication.getName();
 
-            // Log the email obtained from the JWT token
-            log.info("Email from JWT Token: {}", email);
+            // Get the customer to be updated
+            User userToUpdate = userRepository.findById(customerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
 
-            // Use the email to fetch the customer details for the authenticated user
+            // Verify that the authenticated user is updating their own profile
+            if (!userToUpdate.getEmail().equals(email)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile");
+            }
+
+            // Update the customer details
             CustomerResponse updatedCustomer = customerService.updateCustomerByEmail(email, customerRequest);
             return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
         } catch (Exception e) {
             return new ResponseEntity<>("Failed to update customer: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }

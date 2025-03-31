@@ -26,7 +26,21 @@ public interface CustomerMapper {
     @Mapping(target = "wallet", ignore = true)
     @Mapping(target = "walletBalance", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "locked", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "lastUpdated", ignore = true)
     User toUser(CustomerRequest customerRequest);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "wallet", ignore = true)
+    @Mapping(target = "walletBalance", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "locked", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "lastUpdated", ignore = true)
     void updateCustomerFromDTO(CustomerRequest customerRequest, @MappingTarget User user);
 }

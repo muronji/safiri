@@ -1,42 +1,44 @@
 .dashboard-container {
-    padding-top: 30px;
+  padding-top: 30px;
 }
 
 .dashboard-row {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .dashboard-card {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid #666666 !important;
 }
 
 .dashboard-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  border-color: #393838 !important;
 }
 
 .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .card-icon {
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 16px;
 }
 
 .card-content {
-    text-align: center;
+  text-align: center;
 }
 
 .card-value {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .card-subtext {
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
 }
